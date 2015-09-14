@@ -9,47 +9,38 @@
     },
     isInitialized = false,
     forwarderSettings,
-    name = 'Amplitude';
+    name = 'Amplitude',
+    reportingService,
+    id = null;
 
     function getIdentityTypeName(identityType) {
-        switch (identityType) {
-            case window.mParticle.IdentityType.CustomerId:
-                return 'Customer ID';
-            case window.mParticle.IdentityType.Facebook:
-                return 'Facebook ID';
-            case window.mParticle.IdentityType.Twitter:
-                return 'Twitter ID';
-            case window.mParticle.IdentityType.Google:
-                return 'Google ID';
-            case window.mParticle.IdentityType.Microsoft:
-                return 'Microsoft ID';
-            case window.mParticle.IdentityType.Yahoo:
-                return 'Yahoo ID';
-            case window.mParticle.IdentityType.Email:
-                return 'Email';
-            case window.mParticle.IdentityType.Alias:
-                return 'Alias ID';
-            case window.mParticle.IdentityType.FacebookCustomAudienceId:
-                return 'Facebook App User ID';
-            default:
-                return 'Other ID';
-        }
+        return mParticle.IdentityType.getName(identityType);
     }
 
     function processEvent(event) {
+        var reportEvent = false;
+
         if (isInitialized) {
             try {
-                if (event.dt == MessageType.PageView) {
+                if (event.EventDataType == MessageType.PageView) {
+                    reportEvent = true;
                     logPageView(event);
                 }
-                else if (event.dt == MessageType.PageEvent) {
-                    if (event.et == window.mParticle.EventType.Transaction) {
+                else if (event.EventDataType == MessageType.PageEvent) {
+                    reportEvent = true;
+
+                    if (event.EventCategory == window.mParticle.EventType.Transaction) {
                         logTransaction(event);
                     }
                     else {
                         logEvent(event);
                     }
                 }
+
+                if (reportEvent && reportingService) {
+                    reportingService(id, event);
+                }
+
                 return 'Successfully sent to ' + name;
             }
             catch (e) {
@@ -64,10 +55,12 @@
         if (isInitialized) {
             if (type == window.mParticle.IdentityType.CustomerId) {
                 amplitude.setUserId(id);
-            } else {
+            }
+            else {
                 setUserAttribute(getIdentityTypeName(type), id);
             }
-        } else {
+        }
+        else {
             return 'Can\'t call setUserIdentity on forwarder ' + name + ', not initialized';
         }
     }
@@ -79,10 +72,12 @@
                 attributeDict[key] = value;
                 amplitude.setUserProperties(attributeDict);
                 return 'Successfully called setUserProperties API on ' + name;
-            } catch (e) {
+            }
+            catch (e) {
                 return 'Failed to call SET setUserProperties on ' + name + ' ' + e;
             }
-        } else {
+        }
+        else {
             return 'Can\'t call setUserAttribute on forwarder ' + name + ', not initialized';
         }
     }
@@ -90,45 +85,54 @@
     function setOptOut(isOptingOut) {
         if (isInitialized) {
             amplitude.setOptOut(isOptingOut);
-        } else {
+        }
+        else {
             return 'Can\'t call setOptOut on forwarder ' + name + ', not initialized';
         }
     }
 
     function logPageView(data) {
-        if (data.attrs) {
-            amplitude.logEvent("Viewed " + data.n, data.attrs);
-        } else {
-            amplitude.logEvent("Viewed " + data.n);
+        if (data.EventAttributes) {
+            amplitude.logEvent("Viewed " + data.EventName, data.EventAttributes);
+        }
+        else {
+            amplitude.logEvent("Viewed " + data.EventName);
         }
     }
 
     function logEvent(data) {
-        if (data.attrs) {
-            amplitude.logEvent(data.n, data.attrs);
-        } else {
-            amplitude.logEvent(data.n);
+        if (data.EventAttributes) {
+            amplitude.logEvent(data.EventName, data.EventAttributes);
+        }
+        else {
+            amplitude.logEvent(data.EventName);
         }
     }
 
     function logTransaction(data) {
-        if (!data.attrs || !data.attrs.$MethodName || !data.attrs.$MethodName === 'LogEcommerceTransaction') {
+        if (!data.EventAttributes ||
+            !data.EventAttributes.$MethodName ||
+            !data.EventAttributes.$MethodName === 'LogEcommerceTransaction') {
             // User didn't use logTransaction method, so just log normally
             logEvent(data);
             return;
         }
 
         amplitude.logRevenue(
-            data.attrs.RevenueAmount,
-            data.attrs.ProductQuantity,
-            data.attrs.ProductSKU.toString()
+            data.EventAttributes.RevenueAmount,
+            data.EventAttributes.ProductQuantity,
+            data.EventAttributes.ProductSKU.toString()
         );
     }
 
-    function initForwarder(settings) {
-        try {
-            forwarderSettings = settings;
+    function initForwarder(settings, service, moduleId) {
+        var ampSettings;
 
+        forwarderSettings = settings;
+        reportingService = service;
+        id = moduleId;
+
+        try {
             (function (e, t) {
                 var r = e.amplitude || {}; var n = t.createElement("script"); n.type = "text/javascript";
                 n.async = true; n.src = "https://d24n15hnbwhuhn.cloudfront.net/libs/amplitude-2.2.1-min.gz.js";
@@ -139,23 +143,30 @@
             })(window, document);
 
             ampSettings = {};
+
             if (forwarderSettings.saveEvents) {
                 ampSettings.saveEvents = forwarderSettings.saveEvents == 'True';
             }
+
             if (forwarderSettings.savedMaxCount) {
                 ampSettings.savedMaxCount = parseInt(forwarderSettings.savedMaxCount, 10);
             }
+
             if (forwarderSettings.uploadBatchSize) {
                 ampSettings.uploadBatchSize = parseInt(forwarderSettings.uploadBatchSize, 10);
             }
+
             if (forwarderSettings.includeUtm) {
                 ampSettings.includeUtm = forwarderSettings.includeUtm == 'True';
             }
+
             if (forwarderSettings.includeReferrer) {
                 ampSettings.includeReferrer = forwarderSettings.includeReferrer == 'True';
             }
+
             amplitude.init(forwarderSettings.apiKey, null, ampSettings);
             isInitialized = true;
+
             return 'Successfully initialized: ' + name;
         }
         catch (e) {
