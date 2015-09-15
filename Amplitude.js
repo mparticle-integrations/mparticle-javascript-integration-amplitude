@@ -5,13 +5,15 @@
         PageView: 3,
         PageEvent: 4,
         CrashReport: 5,
-        OptOut: 6
+        OptOut: 6,
+        Commerce: 16
     },
     isInitialized = false,
     forwarderSettings,
     name = 'Amplitude',
     reportingService,
-    id = null;
+    id = null,
+    isTesting = false;
 
     function getIdentityTypeName(identityType) {
         return mParticle.IdentityType.getName(identityType);
@@ -25,6 +27,9 @@
                 if (event.EventDataType == MessageType.PageView) {
                     reportEvent = true;
                     logPageView(event);
+                }
+                else if(event.EventDataType == MessageType.Commerce) {
+                    reportEvent = logCommerce(event);
                 }
                 else if (event.EventDataType == MessageType.PageEvent) {
                     reportEvent = true;
@@ -125,22 +130,41 @@
         );
     }
 
-    function initForwarder(settings, service, moduleId) {
+    function logCommerce(event) {
+        if(event.ProductAction && event.ProductAction.ProductList) {
+            event.ProductAction.ProductList.forEach(function(product) {
+                amplitude.logRevenue(
+                    product.Price,
+                    product.Quantity,
+                    product.Sku
+                );
+            });
+
+            return true;
+        }
+
+        return false;
+    }
+
+    function initForwarder(settings, service, moduleId, testMode) {
         var ampSettings;
 
         forwarderSettings = settings;
         reportingService = service;
         id = moduleId;
+        isTesting = testMode;
 
         try {
-            (function (e, t) {
-                var r = e.amplitude || {}; var n = t.createElement("script"); n.type = "text/javascript";
-                n.async = true; n.src = "https://d24n15hnbwhuhn.cloudfront.net/libs/amplitude-2.2.1-min.gz.js";
-                var s = t.getElementsByTagName("script")[0]; s.parentNode.insertBefore(n, s); r._q = []; function a(e) {
-                    r[e] = function () { r._q.push([e].concat(Array.prototype.slice.call(arguments, 0))) }
-                } var i = ["init", "logEvent", "logRevenue", "setUserId", "setUserProperties", "setOptOut", "setVersionName", "setDomain", "setDeviceId", "setGlobalUserProperties"];
-                for (var o = 0; o < i.length; o++) { a(i[o]) } e.amplitude = r
-            })(window, document);
+            if(testMode !== true) {
+                (function (e, t) {
+                    var r = e.amplitude || {}; var n = t.createElement("script"); n.type = "text/javascript";
+                    n.async = true; n.src = "https://d24n15hnbwhuhn.cloudfront.net/libs/amplitude-2.2.1-min.gz.js";
+                    var s = t.getElementsByTagName("script")[0]; s.parentNode.insertBefore(n, s); r._q = []; function a(e) {
+                        r[e] = function () { r._q.push([e].concat(Array.prototype.slice.call(arguments, 0))) }
+                    } var i = ["init", "logEvent", "logRevenue", "setUserId", "setUserProperties", "setOptOut", "setVersionName", "setDomain", "setDeviceId", "setGlobalUserProperties"];
+                    for (var o = 0; o < i.length; o++) { a(i[o]) } e.amplitude = r
+                })(window, document);
+            }
 
             ampSettings = {};
 

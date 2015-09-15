@@ -1,0 +1,80 @@
+﻿<html>
+<head>
+    <meta charset="utf-8">
+    <title>Mocha Tests</title>
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+</head>
+<body>
+    <div id="mocha"></div>
+
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/should/should.js"></script>
+    <script src="../node_modules/blanket/dist/mocha/blanket_mocha.js"></script>
+    <script src="mockhttprequest.js"></script>
+    <script>
+        var mp = function () {
+            var self = this;
+
+            this.addForwarder = function (forwarder) {
+                self.forwarder = forwarder;
+            };
+        };
+
+        var amp = function () {
+            var self = this;
+
+            this.settings = {};
+
+            this.reset = function() {
+                self.eventName = null;
+                self.attrs = null;
+                self.amount = null;
+                self.quantity = null;
+                self.sku = null;
+                self.props = null;
+                self.isOptingOut = null;
+                self.userId = null;
+            };
+
+            this.init = function (key, arg1, settings) {
+                self.settings = settings;
+            };
+
+            this.logRevenue = function (amount, quantity, sku) {
+                self.amount = amount;
+                self.quantity = quantity;
+                self.sku = sku;
+            };
+
+            this.logEvent = function (name, attrs) {
+                self.eventName = name;
+                self.attrs = attrs;
+            };
+
+            this.setOptOut = function (isOptingOut) {
+                self.isOptingOut = isOptingOut;
+            };
+
+            this.setUserProperties = function (props) {
+                self.props = props;
+            };
+
+            this.setUserId = function (id) {
+                self.userId = id;
+            };
+        };
+
+        window.amplitude = new amp();
+        window.mParticle = new mp();
+
+    </script>
+    <script src="../amplitude.js" data-cover></script>
+
+    <script>mocha.setup('bdd')</script>
+
+    <script src="tests.js"></script>
+    <script>
+        mocha.run();
+    </script>
+</body>
+</html>

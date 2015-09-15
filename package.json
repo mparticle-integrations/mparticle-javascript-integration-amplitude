@@ -1,0 +1,10 @@
+{
+  "name": "integration-amplitude",
+  "description": "mParticle integration sdk for Amplitude",
+  "repository": "https://github.com/mParticle/integration-amplitude",
+  "devDependencies": {
+    "blanket": "^1.1.7",
+    "should": "^7.1.0",
+    "mocha": "^2.3.2"
+  }
+}
