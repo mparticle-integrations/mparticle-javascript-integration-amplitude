@@ -16,7 +16,7 @@
             var self = this;
 
             this.addForwarder = function (forwarder) {
-                self.forwarder = forwarder;
+                self.forwarder = new forwarder.constructor();
             };
         };
 
