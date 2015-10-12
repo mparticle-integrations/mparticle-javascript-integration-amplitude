@@ -30,7 +30,6 @@
             isInitialized = false,
             forwarderSettings,
             reportingService,
-            id = null,
             isTesting = false;
 
         function getIdentityTypeName(identityType) {
@@ -61,7 +60,7 @@
                     }
 
                     if (reportEvent && reportingService) {
-                        reportingService(id, event);
+                        reportingService(self, event);
                     }
 
                     return 'Successfully sent to ' + name;
@@ -164,12 +163,11 @@
             return false;
         }
 
-        function initForwarder(settings, service, moduleId, testMode) {
+        function initForwarder(settings, service, testMode) {
             var ampSettings;
 
             forwarderSettings = settings;
             reportingService = service;
-            id = moduleId;
             isTesting = testMode;
 
             try {

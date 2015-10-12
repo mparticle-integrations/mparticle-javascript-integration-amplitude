@@ -55,8 +55,8 @@ describe('Amplitude forwarder', function () {
             this.id = null;
             this.event = null;
 
-            this.cb = function (id, event) {
-                self.id = id;
+            this.cb = function (forwarder, event) {
+                self.id = forwarder.id;
                 self.event = event;
             };
 
@@ -105,7 +105,7 @@ describe('Amplitude forwarder', function () {
             uploadBatchSize: 5,
             includeUtm: 'False',
             includeReferrer: 'True'
-        }, reportService.cb, 1, true);
+        }, reportService.cb, true);
     });
 
     beforeEach(function() {
