@@ -32,6 +32,8 @@
             reportingService,
             isTesting = false;
 
+        self.name = name;
+
         function getIdentityTypeName(identityType) {
             return mParticle.IdentityType.getName(identityType);
         }
