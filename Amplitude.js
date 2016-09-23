@@ -150,7 +150,10 @@
         }
 
         function logCommerce(event) {
-            if(event.ProductAction && event.ProductAction.ProductList) {
+            if(event.ProductAction
+                && event.ProductAction.ProductList
+                && (event.ProductAction.ProductActionType == mParticle.ProductActionType.Purchase ||
+                    event.ProductAction.ProductActionType == mParticle.ProductActionType.Refund)) {
                 event.ProductAction.ProductList.forEach(function(product) {
                     amplitude.logRevenue(
                         product.Price,

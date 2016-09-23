@@ -199,10 +199,11 @@ describe('Amplitude forwarder', function () {
         done();
     });
 
-    it('should log commerce events', function (done) {
+    it('should log purchase commerce events', function (done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
             ProductAction: {
+                ProductActionType: ProductActionType.Purchase,
                 ProductList: [
                     {
                         Sku: '12345',
@@ -216,6 +217,48 @@ describe('Amplitude forwarder', function () {
         amplitude.should.have.property('amount', 400);
         amplitude.should.have.property('sku', '12345');
         amplitude.should.have.property('quantity', 1);
+
+        done();
+    });
+
+    it('should log refund commerce events', function (done) {
+        mParticle.forwarder.process({
+            EventDataType: MessageType.Commerce,
+            ProductAction: {
+                ProductActionType: ProductActionType.Refund,
+                ProductList: [
+                    {
+                        Sku: '12345',
+                        Price: 400,
+                        Quantity: 1
+                    }
+                ]
+            }
+        });
+
+        amplitude.should.have.property('amount', 400);
+        amplitude.should.have.property('sku', '12345');
+        amplitude.should.have.property('quantity', 1);
+
+        done();
+    });
+
+    it('should not log non-compatible commerce events', function (done) {
+        mParticle.forwarder.process({
+            EventDataType: MessageType.Commerce,
+            ProductAction: {
+                ProductActionType: ProductActionType.Checkout,
+                ProductList: [
+                    {
+                        Sku: '12345',
+                        Price: 400,
+                        Quantity: 1
+                    }
+                ]
+            }
+        });
+
+        amplitude.should.have.property('amount', null);
 
         done();
     });
