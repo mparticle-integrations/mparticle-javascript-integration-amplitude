@@ -1,4 +1,5 @@
-describe('Amplitude forwarder', function () {
+/* eslint-disable no-undef*/
+describe('Amplitude forwarder', function() {
     var MessageType = {
             SessionStart: 1,
             SessionEnd: 2,
@@ -19,7 +20,7 @@ describe('Amplitude forwarder', function () {
             Social: 7,
             Other: 8,
             Media: 9,
-            getName: function () {
+            getName: function() {
                 return 'blahblah';
             }
         },
@@ -34,7 +35,7 @@ describe('Amplitude forwarder', function () {
             Purchase: 7,
             Refund: 8,
             AddToWishlist: 9,
-            RemoveFromWishlist: 10,
+            RemoveFromWishlist: 10
         },
         IdentityType = {
             Other: 0,
@@ -47,27 +48,27 @@ describe('Amplitude forwarder', function () {
             Email: 7,
             Alias: 8,
             FacebookCustomAudienceId: 9,
-            getName: function () {return 'CustomerID';}
+            getName: function() {return 'CustomerID';}
         },
-        ReportingService = function () {
+        ReportingService = function() {
             var self = this;
 
             this.id = null;
             this.event = null;
 
-            this.cb = function (forwarder, event) {
+            this.cb = function(forwarder, event) {
                 self.id = forwarder.id;
                 self.event = event;
             };
 
-            this.reset = function () {
-                this.id = null
-                this.event = null;
+            this.reset = function() {
+                self.id = null;
+                self.event = null;
             };
         },
         reportService = new ReportingService();
 
-    before(function () {
+    before(function() {
         mParticle.EventType = EventType;
         mParticle.ProductActionType = ProductActionType;
         mParticle.IdentityType = IdentityType;
@@ -83,7 +84,7 @@ describe('Amplitude forwarder', function () {
             name = name.toString().toLowerCase();
 
             if (Array.prototype.reduce) {
-                return name.split("").reduce(function (a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+                return name.split('').reduce(function(a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
             }
 
             if (name.length === 0) {
@@ -98,7 +99,30 @@ describe('Amplitude forwarder', function () {
 
             return hash;
         };
+    });
 
+    beforeEach(function() {
+        window.amplitude.reset();
+        mParticle.forwarder.init({
+            saveEvents: 'True',
+            savedMaxCount: 20,
+            uploadBatchSize: 5,
+            includeUtm: 'False',
+            includeReferrer: 'True',
+            instanceName: 'newInstance'
+        }, reportService.cb, true);
+    });
+
+    it('should have created an instance with name \'newInstance\'', function(done) {
+        var instanceNames = Object.keys(amplitude.instances);
+
+        instanceNames.should.have.length(1);
+        amplitude.instances.should.have.property('newInstance');
+
+        done();
+    });
+
+    it('creates an additional instance with name \'default\' when no instanceName is passed', function(done) {
         mParticle.forwarder.init({
             saveEvents: 'True',
             savedMaxCount: 20,
@@ -106,29 +130,17 @@ describe('Amplitude forwarder', function () {
             includeUtm: 'False',
             includeReferrer: 'True'
         }, reportService.cb, true);
-    });
 
-    beforeEach(function() {
-        window.amplitude.reset();
-    });
+        var instanceNames = Object.keys(amplitude.instances);
 
-    it('should log event', function (done) {
-        mParticle.forwarder.process({
-            EventDataType: MessageType.PageEvent,
-            EventName: 'Test Event',
-            EventAttributes: {
-                Key: 'Value'
-            }
-        });
-
-        amplitude.should.have.property('eventName', 'Test Event');
-        amplitude.should.have.property('attrs');
-        amplitude.attrs.should.have.property('Key', 'Value');
+        instanceNames.should.have.length(2);
+        amplitude.instances.should.have.property('default');
+        amplitude.instances.should.have.property('newInstance');
 
         done();
     });
 
-    it('should log page view', function (done) {
+    it('should log page view', function(done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.PageView,
             EventName: 'Test Page View',
@@ -137,14 +149,14 @@ describe('Amplitude forwarder', function () {
             }
         });
 
-        amplitude.should.have.property('eventName', 'Viewed Test Page View');
-        amplitude.should.have.property('attrs');
-        amplitude.attrs.should.have.property('Path', 'Test');
+        amplitude.instances.newInstance.should.have.property('eventName', 'Viewed Test Page View');
+        amplitude.instances.newInstance.should.have.property('attrs');
+        amplitude.instances.newInstance.attrs.should.have.property('Path', 'Test');
 
         done();
     });
 
-    it('should log transaction', function (done) {
+    it('should log transaction', function(done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.PageEvent,
             EventCategory: EventType.Transaction,
@@ -156,9 +168,9 @@ describe('Amplitude forwarder', function () {
             }
         });
 
-        amplitude.should.have.property('amount', 400);
-        amplitude.should.have.property('quantity', 1);
-        amplitude.should.have.property('sku', '12345');
+        amplitude.instances.newInstance.should.have.property('amount', 400);
+        amplitude.instances.newInstance.should.have.property('quantity', 1);
+        amplitude.instances.newInstance.should.have.property('sku', '12345');
 
         done();
     });
@@ -166,7 +178,7 @@ describe('Amplitude forwarder', function () {
     it('should set customer id user identity', function(done) {
         mParticle.forwarder.setUserIdentity('tbreffni@mparticle.com', IdentityType.CustomerId);
 
-        amplitude.should.have.property('userId', 'tbreffni@mparticle.com');
+        amplitude.instances.newInstance.should.have.property('userId', 'tbreffni@mparticle.com');
 
         done();
     });
@@ -174,32 +186,31 @@ describe('Amplitude forwarder', function () {
     it('should set user attribute', function(done) {
         mParticle.forwarder.setUserAttribute('gender', 'male');
 
-        amplitude.should.have.property('props');
-        amplitude.props.should.have.property('gender', 'male')
+        amplitude.instances.newInstance.should.have.property('props');
+        amplitude.instances.newInstance.props.should.have.property('gender', 'male');
 
         done();
     });
 
-    it('should set opt out', function (done) {
+    it('should set opt out', function(done) {
         mParticle.forwarder.setOptOut(true);
 
-        amplitude.should.have.property('isOptingOut', true);
+        amplitude.instances.newInstance.should.have.property('isOptingOut', true);
 
         done();
     });
 
-    it('should parse forwarder settings', function (done) {
-
-        amplitude.settings.should.have.property('saveEvents', true);
-        amplitude.settings.should.have.property('savedMaxCount', 20);
-        amplitude.settings.should.have.property('uploadBatchSize', 5);
-        amplitude.settings.should.have.property('includeUtm', false);
-        amplitude.settings.should.have.property('includeReferrer', true);
+    it('should parse forwarder settings', function(done) {
+        amplitude.instances.newInstance.settings.should.have.property('saveEvents', true);
+        amplitude.instances.newInstance.settings.should.have.property('savedMaxCount', 20);
+        amplitude.instances.newInstance.settings.should.have.property('uploadBatchSize', 5);
+        amplitude.instances.newInstance.settings.should.have.property('includeUtm', false);
+        amplitude.instances.newInstance.settings.should.have.property('includeReferrer', true);
 
         done();
     });
 
-    it('should log purchase commerce events', function (done) {
+    it('should log purchase commerce events', function(done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -214,14 +225,14 @@ describe('Amplitude forwarder', function () {
             }
         });
 
-        amplitude.should.have.property('amount', 400);
-        amplitude.should.have.property('sku', '12345');
-        amplitude.should.have.property('quantity', 1);
+        amplitude.instances.newInstance.should.have.property('amount', 400);
+        amplitude.instances.newInstance.should.have.property('sku', '12345');
+        amplitude.instances.newInstance.should.have.property('quantity', 1);
 
         done();
     });
 
-    it('should log refund commerce events', function (done) {
+    it('should log refund commerce events', function(done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -236,14 +247,14 @@ describe('Amplitude forwarder', function () {
             }
         });
 
-        amplitude.should.have.property('amount', 400);
-        amplitude.should.have.property('sku', '12345');
-        amplitude.should.have.property('quantity', 1);
+        amplitude.instances.newInstance.should.have.property('amount', 400);
+        amplitude.instances.newInstance.should.have.property('sku', '12345');
+        amplitude.instances.newInstance.should.have.property('quantity', 1);
 
         done();
     });
 
-    it('should not log non-compatible commerce events', function (done) {
+    it('should not log non-compatible commerce events', function(done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -258,7 +269,7 @@ describe('Amplitude forwarder', function () {
             }
         });
 
-        amplitude.should.have.property('amount', null);
+        amplitude.instances.newInstance.should.have.property('amount', null);
 
         done();
     });

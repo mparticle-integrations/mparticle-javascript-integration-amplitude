@@ -1,3 +1,5 @@
+/* eslint-disable no-undef*/
+
 /*
  * Mock XMLHttpRequest (see http://www.w3.org/TR/XMLHttpRequest)
  *
@@ -91,27 +93,27 @@ MockHttpRequest.prototype = {
     /*** Request ***/
 
     open: function (method, url, async, user, password) {
-        if (typeof method !== "string") {
-            throw "INVALID_METHOD";
+        if (typeof method !== 'string') {
+            throw 'INVALID_METHOD';
         }
         switch (method.toUpperCase()) {
-        case "CONNECT":
-        case "TRACE":
-        case "TRACK":
-            throw "SECURITY_ERR";
+            case 'CONNECT':
+            case 'TRACE':
+            case 'TRACK':
+                throw 'SECURITY_ERR';
 
-        case "DELETE":
-        case "GET":
-        case "HEAD":
-        case "OPTIONS":
-        case "POST":
-        case "PUT":
-            method = method.toUpperCase();
+            case 'DELETE':
+            case 'GET':
+            case 'HEAD':
+            case 'OPTIONS':
+            case 'POST':
+            case 'PUT':
+                method = method.toUpperCase();
         }
         this.method = method;
 
-        if (typeof url !== "string") {
-            throw "INVALID_URL";
+        if (typeof url !== 'string') {
+            throw 'INVALID_URL';
         }
         this.url = url;
         this.urlParts = this.parseUri(url);
@@ -131,37 +133,37 @@ MockHttpRequest.prototype = {
         header = header.toLowerCase();
 
         switch (header) {
-        case "accept-charset":
-        case "accept-encoding":
-        case "connection":
-        case "content-length":
-        case "cookie":
-        case "cookie2":
-        case "content-transfer-encoding":
-        case "date":
-        case "expect":
-        case "host":
-        case "keep-alive":
-        case "referer":
-        case "te":
-        case "trailer":
-        case "transfer-encoding":
-        case "upgrade":
-        case "user-agent":
-        case "via":
-            return;
+            case 'accept-charset':
+            case 'accept-encoding':
+            case 'connection':
+            case 'content-length':
+            case 'cookie':
+            case 'cookie2':
+            case 'content-transfer-encoding':
+            case 'date':
+            case 'expect':
+            case 'host':
+            case 'keep-alive':
+            case 'referer':
+            case 'te':
+            case 'trailer':
+            case 'transfer-encoding':
+            case 'upgrade':
+            case 'user-agent':
+            case 'via':
+                return;
         }
-        if ((header.substr(0, 6) === "proxy-")
-            || (header.substr(0, 4) === "sec-")) {
+        if ((header.substr(0, 6) === 'proxy-')
+            || (header.substr(0, 4) === 'sec-')) {
             return;
         }
 
         // it's the first call on this header field
         if (this.requestHeaders[header] === undefined)
-          this.requestHeaders[header] = value;
+            {this.requestHeaders[header] = value;}
         else {
-          var prev = this.requestHeaders[header];
-          this.requestHeaders[header] = prev + ", " + value;
+            var prev = this.requestHeaders[header];
+            this.requestHeaders[header] = prev + ', ' + value;
         }
 
     },
@@ -169,9 +171,9 @@ MockHttpRequest.prototype = {
     send: function (data) {
         if ((this.readyState !== this.OPENED)
             || this.sent) {
-            throw "INVALID_STATE_ERR";
+            throw 'INVALID_STATE_ERR';
         }
-        if ((this.method === "GET") || (this.method === "HEAD")) {
+        if ((this.method === 'GET') || (this.method === 'HEAD')) {
             data = null;
         }
 
@@ -201,7 +203,7 @@ MockHttpRequest.prototype = {
     /*** Response ***/
 
     status: 0,
-    statusText: "",
+    statusText: '',
 
     getResponseHeader: function (header) {
         if ((this.readyState === this.UNSENT)
@@ -213,18 +215,18 @@ MockHttpRequest.prototype = {
     },
 
     getAllResponseHeaders: function () {
-        var r = "";
+        var r = '';
         for (var header in this.responseHeaders) {
-            if ((header === "set-cookie") || (header === "set-cookie2")) {
+            if ((header === 'set-cookie') || (header === 'set-cookie2')) {
                 continue;
             }
             //TODO title case header
-            r += header + ": " + this.responseHeaders[header] + "\r\n";
+            r += header + ': ' + this.responseHeaders[header] + '\r\n';
         }
         return r;
     },
 
-    responseText: "",
+    responseText: '',
     responseXML: undefined, //TODO
 
 
@@ -272,7 +274,7 @@ MockHttpRequest.prototype = {
         //     and return null.
         //  2. If final MIME type is not null, text/xml, application/xml,
         //     and does not end in +xml terminate these steps and return null.
-        var mimetype = this.getResponseHeader("Content-Type");
+        var mimetype = this.getResponseHeader('Content-Type');
         mimetype = mimetype && mimetype.split(';', 1)[0];
         if ((mimetype == null) || (mimetype == 'text/xml') ||
            (mimetype == 'application/xml') ||
@@ -282,10 +284,10 @@ MockHttpRequest.prototype = {
             try {
                 if (window.DOMParser) {
                     var parser = new DOMParser();
-                    xmlDoc = parser.parseFromString(data, "text/xml");
+                    xmlDoc = parser.parseFromString(data, 'text/xml');
                 } else { // Internet Explorer
-                    xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-                    xmlDoc.async = "false";
+                    xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
+                    xmlDoc.async = 'false';
                     xmlDoc.loadXML(data);
                 }
             } catch (e) {
@@ -300,10 +302,10 @@ MockHttpRequest.prototype = {
             }
             // parse errors also yield a null.
             if ((xmlDoc && xmlDoc.parseError && xmlDoc.parseError.errorCode != 0)
-                || (xmlDoc && xmlDoc.documentElement && xmlDoc.documentElement.nodeName == "parsererror")
-                || (xmlDoc && xmlDoc.documentElement && xmlDoc.documentElement.nodeName == "html"
-                    &&  xmlDoc.documentElement.firstChild &&  xmlDoc.documentElement.firstChild.nodeName == "body"
-                    &&  xmlDoc.documentElement.firstChild.firstChild && xmlDoc.documentElement.firstChild.firstChild.nodeName == "parsererror")) {
+                || (xmlDoc && xmlDoc.documentElement && xmlDoc.documentElement.nodeName == 'parsererror')
+                || (xmlDoc && xmlDoc.documentElement && xmlDoc.documentElement.nodeName == 'html'
+                    && xmlDoc.documentElement.firstChild && xmlDoc.documentElement.firstChild.nodeName == 'body'
+                    && xmlDoc.documentElement.firstChild.firstChild && xmlDoc.documentElement.firstChild.firstChild.nodeName == 'parsererror')) {
                 xmlDoc = null;
             }
         } else {
@@ -317,11 +319,11 @@ MockHttpRequest.prototype = {
     receive: function (status, data) {
         if ((this.readyState !== this.OPENED) || (!this.sent)) {
             // Can't respond to unopened request.
-            throw "INVALID_STATE_ERR";
+            throw 'INVALID_STATE_ERR';
         }
 
         this.status = status;
-        this.statusText = status + " " + this.statusReasons[status];
+        this.statusText = status + ' ' + this.statusReasons[status];
         this.readyState = this.HEADERS_RECEIVED;
         this.onprogress();
         this.onreadystatechange();
@@ -343,7 +345,7 @@ MockHttpRequest.prototype = {
     err: function (exception) {
         if ((this.readyState !== this.OPENED) || (!this.sent)) {
             // Can't respond to unopened request.
-            throw "INVALID_STATE_ERR";
+            throw 'INVALID_STATE_ERR';
         }
 
         this.responseText = null;
@@ -371,14 +373,14 @@ MockHttpRequest.prototype = {
         }
 
         // Basic auth.  Requires existence of the 'atob' function.
-        var auth = this.getRequestHeader("Authorization");
+        var auth = this.getRequestHeader('Authorization');
         if (auth === undefined) {
             return false;
         }
-        if (auth.substr(0, 6) !== "Basic ") {
+        if (auth.substr(0, 6) !== 'Basic ') {
             return false;
         }
-        if (typeof atob !== "function") {
+        if (typeof atob !== 'function') {
             return false;
         }
         auth = atob(auth.substr(6));
@@ -393,26 +395,26 @@ MockHttpRequest.prototype = {
     // See http://blog.stevenlevithan.com/archives/parseuri
     parseUri: function (str) {
         var pattern = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/;
-        var key = ["source", "protocol", "authority", "userInfo", "user",
-                   "password", "host", "port", "relative", "path",
-                   "directory", "file", "query", "anchor"];
+        var key = ['source', 'protocol', 'authority', 'userInfo', 'user',
+            'password', 'host', 'port', 'relative', 'path',
+            'directory', 'file', 'query', 'anchor'];
         var querypattern = /(?:^|&)([^&=]*)=?([^&]*)/g;
 
         var match = pattern.exec(str);
-		var uri = {};
-		var i = 14;
-	    while (i--) {
-            uri[key[i]] = match[i] || "";
+        var uri = {};
+        var i = 14;
+        while (i--) {
+            uri[key[i]] = match[i] || '';
         }
 
-	    uri.queryKey = {};
-	    uri[key[12]].replace(querypattern, function ($0, $1, $2) {
-		    if ($1) {
+        uri.queryKey = {};
+        uri[key[12]].replace(querypattern, function ($0, $1, $2) {
+            if ($1) {
                 uri.queryKey[$1] = $2;
             }
-	    });
+        });
 
-	    return uri;
+        return uri;
     }
 };
 
@@ -441,7 +443,7 @@ function MockHttpServer (handler) {
     if (handler) {
         this.handle = handler;
     }
-};
+}
 MockHttpServer.prototype = {
     requests: [],
     start: function () {
@@ -464,7 +466,7 @@ MockHttpServer.prototype = {
         window.XMLHttpRequest = window.OriginalHttpRequest;
     },
 
-    handle: function (request) {
+    handle: function () {
         // Instances should override this.
     }
 };
