@@ -1,3 +1,4 @@
+/* eslint-disable no-undef*/
 //
 //  Copyright 2015 mParticle, Inc.
 //
@@ -13,26 +14,34 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-(function (window) {
-    var MessageType = {
-        SessionStart: 1,
-        SessionEnd: 2,
-        PageView: 3,
-        PageEvent: 4,
-        CrashReport: 5,
-        OptOut: 6,
-        Commerce: 16
-    },
-    name = 'Amplitude';
+(function(window) {
+    var name = 'Amplitude',
+        MessageType = {
+            SessionStart: 1,
+            SessionEnd: 2,
+            PageView: 3,
+            PageEvent: 4,
+            CrashReport: 5,
+            OptOut: 6,
+            Commerce: 16
+        };
 
-    var constructor = function () {
+    var constructor = function() {
         var self = this,
             isInitialized = false,
             forwarderSettings,
             reportingService,
-            isTesting = false;
+            isDefaultInstance;
 
         self.name = name;
+
+        function getInstance() {
+            if (isDefaultInstance) {
+                return amplitude.getInstance();
+            } else {
+                return amplitude.getInstance(forwarderSettings.instanceName);
+            }
+        }
 
         function getIdentityTypeName(identityType) {
             return mParticle.IdentityType.getName(identityType);
@@ -47,7 +56,7 @@
                         reportEvent = true;
                         logPageView(event);
                     }
-                    else if(event.EventDataType == MessageType.Commerce) {
+                    else if (event.EventDataType == MessageType.Commerce) {
                         reportEvent = logCommerce(event);
                     }
                     else if (event.EventDataType == MessageType.PageEvent) {
@@ -78,7 +87,7 @@
         function setUserIdentity(id, type) {
             if (isInitialized) {
                 if (type == window.mParticle.IdentityType.CustomerId) {
-                    amplitude.setUserId(id);
+                    getInstance().setUserId(id);
                 }
                 else {
                     setUserAttribute(getIdentityTypeName(type), id);
@@ -94,7 +103,8 @@
                 try {
                     var attributeDict = {};
                     attributeDict[key] = value;
-                    amplitude.setUserProperties(attributeDict);
+                    getInstance().setUserProperties(attributeDict);
+
                     return 'Successfully called setUserProperties API on ' + name;
                 }
                 catch (e) {
@@ -108,7 +118,7 @@
 
         function setOptOut(isOptingOut) {
             if (isInitialized) {
-                amplitude.setOptOut(isOptingOut);
+                getInstance().setOptOut(isOptingOut);
             }
             else {
                 return 'Can\'t call setOptOut on forwarder ' + name + ', not initialized';
@@ -117,19 +127,19 @@
 
         function logPageView(data) {
             if (data.EventAttributes) {
-                amplitude.logEvent("Viewed " + data.EventName, data.EventAttributes);
+                getInstance().logEvent('Viewed ' + data.EventName, data.EventAttributes);
             }
             else {
-                amplitude.logEvent("Viewed " + data.EventName);
+                getInstance().logEvent('Viewed ' + data.EventName);
             }
         }
 
         function logEvent(data) {
             if (data.EventAttributes) {
-                amplitude.logEvent(data.EventName, data.EventAttributes);
+                getInstance().logEvent(data.EventName, data.EventAttributes);
             }
             else {
-                amplitude.logEvent(data.EventName);
+                getInstance().logEvent(data.EventName);
             }
         }
 
@@ -142,7 +152,7 @@
                 return;
             }
 
-            amplitude.logRevenue(
+            getInstance().logRevenue(
                 data.EventAttributes.RevenueAmount,
                 data.EventAttributes.ProductQuantity,
                 data.EventAttributes.ProductSKU.toString()
@@ -155,7 +165,7 @@
                 && (event.ProductAction.ProductActionType == mParticle.ProductActionType.Purchase ||
                     event.ProductAction.ProductActionType == mParticle.ProductActionType.Refund)) {
                 event.ProductAction.ProductList.forEach(function(product) {
-                    amplitude.logRevenue(
+                    getInstance().logRevenue(
                         product.Price,
                         product.Quantity,
                         product.Sku
@@ -176,15 +186,23 @@
             isTesting = testMode;
 
             try {
-                if(testMode !== true) {
-                    (function (e, t) {
-                        var r = e.amplitude || {}; var n = t.createElement("script"); n.type = "text/javascript";
-                        n.async = true; n.src = "https://d24n15hnbwhuhn.cloudfront.net/libs/amplitude-2.2.1-min.gz.js";
-                        var s = t.getElementsByTagName("script")[0]; s.parentNode.insertBefore(n, s); r._q = []; function a(e) {
-                            r[e] = function () { r._q.push([e].concat(Array.prototype.slice.call(arguments, 0))) }
-                        } var i = ["init", "logEvent", "logRevenue", "setUserId", "setUserProperties", "setOptOut", "setVersionName", "setDomain", "setDeviceId", "setGlobalUserProperties"];
-                        for (var o = 0; o < i.length; o++) { a(i[o]) } e.amplitude = r
-                    })(window, document);
+                if (!window.amplitude) {
+                    if(testMode !== true) {
+                        /* eslint-disable */
+                        (function(e,t){var n=e.amplitude||{_q:[],_iq:{}};var r=t.createElement("script");r.type="text/javascript";
+                            r.async=true;r.src="https://d24n15hnbwhuhn.cloudfront.net/libs/amplitude-3.4.0-min.gz.js";
+                            r.onload=function(){e.amplitude.runQueuedFunctions()};var i=t.getElementsByTagName("script")[0];
+                            i.parentNode.insertBefore(r,i);function s(e,t){e.prototype[t]=function(){this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));
+                            return this}}var o=function(){this._q=[];return this};var a=["add","append","clearAll","prepend","set","setOnce","unset"];
+                            for(var u=0;u<a.length;u++){s(o,a[u])}n.Identify=o;var c=function(){this._q=[];return this;
+                            };var p=["setProductId","setQuantity","setPrice","setRevenueType","setEventProperties"];
+                            for(var l=0;l<p.length;l++){s(c,p[l])}n.Revenue=c;var d=["init","logEvent","logRevenue","setUserId","setUserProperties","setOptOut","setVersionName","setDomain","setDeviceId","setGlobalUserProperties","identify","clearUserProperties","setGroup","logRevenueV2","regenerateDeviceId","logEventWithTimestamp","logEventWithGroups"];
+                            function v(e){function t(t){e[t]=function(){e._q.push([t].concat(Array.prototype.slice.call(arguments,0)));
+                            }}for(var n=0;n<d.length;n++){t(d[n])}}v(n);n.getInstance=function(e){e=(!e||e.length===0?"$default_instance":e).toLowerCase();
+                            if(!n._iq.hasOwnProperty(e)){n._iq[e]={_q:[]};v(n._iq[e])}return n._iq[e]};e.amplitude=n;
+                            })(window,document);
+                        /* eslint-enable */
+                    }
                 }
 
                 ampSettings = {};
@@ -209,14 +227,16 @@
                     ampSettings.includeReferrer = forwarderSettings.includeReferrer == 'True';
                 }
 
-                amplitude.init(forwarderSettings.apiKey, null, ampSettings);
-                isInitialized = true;
+                isDefaultInstance = (!forwarderSettings.instanceName || forwarderSettings.instanceName === 'default');
 
+                getInstance().init(forwarderSettings.apiKey, null, ampSettings);
+                isInitialized = true;
                 return 'Successfully initialized: ' + name;
             }
             catch (e) {
                 return 'Failed to initialize: ' + name;
             }
+
         }
 
         this.init = initForwarder;
@@ -234,5 +254,4 @@
         name: name,
         constructor: constructor
     });
-
 })(window);

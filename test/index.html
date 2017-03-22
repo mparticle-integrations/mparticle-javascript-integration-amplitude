@@ -21,11 +21,41 @@
         };
 
         var amp = function () {
-            var self = this;
+            var instance,
+                self = this;
 
             this.settings = {};
+            this.instances = {};
+
+            this.getInstance = function(instanceName) {
+                if (!instanceName) {
+                    instanceName = 'default';
+                }
+
+                if (this.instances[instanceName]) {
+                    return this.instances[instanceName];
+                } else if (instanceName === 'default') {
+                    instance = new ampClient('default');
+                } else {
+                    instance = new ampClient(instanceName);
+                }
+
+                this.instances[instanceName] = instance;
+
+                return instance;
+            };
 
             this.reset = function() {
+                self.settings = {};
+                self.instances = {};
+            };
+        };
+
+        var ampClient = function(instanceName) {
+            var self = this;
+
+            this.init = function(key, arg1, settings) {
+                self.settings = settings;
                 self.eventName = null;
                 self.attrs = null;
                 self.amount = null;
@@ -34,10 +64,6 @@
                 self.props = null;
                 self.isOptingOut = null;
                 self.userId = null;
-            };
-
-            this.init = function (key, arg1, settings) {
-                self.settings = settings;
             };
 
             this.logRevenue = function (amount, quantity, sku) {
@@ -62,11 +88,21 @@
             this.setUserId = function (id) {
                 self.userId = id;
             };
+
+            this.reset = function() {
+                self.eventName = null;
+                self.attrs = null;
+                self.amount = null;
+                self.quantity = null;
+                self.sku = null;
+                self.props = null;
+                self.isOptingOut = null;
+                self.userId = null;
+            };
         };
 
         window.amplitude = new amp();
         window.mParticle = new mp();
-
     </script>
     <script src="../amplitude.js" data-cover></script>
 
