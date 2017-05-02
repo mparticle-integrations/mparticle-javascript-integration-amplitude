@@ -98,6 +98,26 @@
             }
         }
 
+        function removeUserAttribute(key) {
+            if (isInitialized)  {
+                if (forwarderSettings.allowUnsetUserAttributes && forwarderSettings.allowUnsetUserAttributes == 'True') {
+                    try {
+                        var attributeDict = {}
+                        attributeDict[key] = '-'
+                        getInstance().setUserProperties({'$unset':attributeDict});
+
+                        return 'Successfully unset Amplitude user property: ' + key;
+                    }
+                    catch (e) {
+                        return 'Failed to call unset on ' + name + ' ' + e;
+                    }
+                }
+            }
+            else {
+                return 'Can\'t call removeUserAttribute on forwarder ' + name + ', not initialized';
+            }
+        }
+
         function setUserAttribute(key, value) {
             if (isInitialized) {
                 try {
@@ -244,6 +264,7 @@
         this.setUserIdentity = setUserIdentity;
         this.setUserAttribute = setUserAttribute;
         this.setOptOut = setOptOut;
+        this.removeUserAttribute = removeUserAttribute;
     };
 
     if (!window || !window.mParticle || !window.mParticle.addForwarder) {
