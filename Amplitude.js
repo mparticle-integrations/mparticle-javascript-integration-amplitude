@@ -227,6 +227,12 @@
 
                 ampSettings = {};
 
+                // allow the client to set custom amplitude init properties
+                if (typeof window.AmplitudeInitSettings === "object" &&
+                    window.AmplitudeInitSettings !== null) {
+                    ampSettings = window.AmplitudeInitSettings;
+                  }
+
                 if (forwarderSettings.saveEvents) {
                     ampSettings.saveEvents = forwarderSettings.saveEvents == 'True';
                 }

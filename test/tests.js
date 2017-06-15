@@ -274,3 +274,26 @@ describe('Amplitude forwarder', function() {
         done();
     });
 });
+
+describe('Default amplitude settings', function() {
+    it('sets default amplitude settings', function() {
+        var platform = 'International Space Station';
+        window.AmplitudeInitSettings = {
+            platform: platform
+        };
+        window.amplitude.reset();
+        mParticle.forwarder.init({
+            saveEvents: 'True',
+            savedMaxCount: 20,
+            uploadBatchSize: 5,
+            includeUtm: 'False',
+            includeReferrer: 'True',
+            instanceName: 'newInstance'
+        }, function(forwarder, event) {
+            self.id = forwarder.id;
+            self.event = event;
+        }, true);
+
+        amplitude.instances.newInstance.settings.should.have.property('platform', platform);
+    });
+});
