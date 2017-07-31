@@ -7,17 +7,15 @@
 <body>
     <div id="mocha"></div>
 
+    <script src="https://rawgit.com/mParticle/mparticle-sdk-javascript/master/mparticle.js"></script>
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../node_modules/should/should.js"></script>
     <script src="../node_modules/blanket/dist/mocha/blanket_mocha.js"></script>
     <script src="mockhttprequest.js"></script>
     <script>
-        var mp = function () {
-            var self = this;
 
-            this.addForwarder = function (forwarder) {
-                self.forwarder = new forwarder.constructor();
-            };
+        window.mParticle.addForwarder = function (forwarder) {
+                window.mParticle.forwarder = new forwarder.constructor();
         };
 
         var amp = function () {
@@ -45,6 +43,21 @@
                 return instance;
             };
 
+            this.Revenue = function(){
+
+                return {
+                    setPrice : function(price){
+                        this.price = price;
+                        return this;
+                    },
+
+                    setEventProperties: function(eventAttributes){
+                        this.eventAttributes = eventAttributes;
+                        return this;
+                    }
+                };
+            }
+
             this.reset = function() {
                 self.settings = {};
                 self.instances = {};
@@ -71,6 +84,10 @@
                 self.quantity = quantity;
                 self.sku = sku;
             };
+
+            this.logRevenueV2 = function (RevenueObj){
+                self.revenueObj = RevenueObj;
+            }
 
             this.logEvent = function (name, attrs) {
                 self.eventName = name;
@@ -102,12 +119,9 @@
         };
 
         window.amplitude = new amp();
-        window.mParticle = new mp();
     </script>
     <script src="../amplitude.js" data-cover></script>
-
     <script>mocha.setup('bdd')</script>
-
     <script src="tests.js"></script>
     <script>
         mocha.run();

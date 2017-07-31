@@ -180,17 +180,34 @@
         }
 
         function logCommerce(event) {
-            if(event.ProductAction
-                && event.ProductAction.ProductList
-                && (event.ProductAction.ProductActionType == mParticle.ProductActionType.Purchase ||
-                    event.ProductAction.ProductActionType == mParticle.ProductActionType.Refund)) {
-                event.ProductAction.ProductList.forEach(function(product) {
-                    getInstance().logRevenue(
-                        product.Price,
-                        product.Quantity,
-                        product.Sku
-                    );
-                });
+            if(event.ProductAction){   
+
+                var isRefund = event.ProductAction.ProductActionType === mParticle.ProductActionType.Refund;
+                var logRevenue = (event.ProductAction.ProductActionType === mParticle.ProductActionType.Purchase) || isRefund;
+                var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
+                
+                expandedEvents.forEach(function(expandedEvt) {
+
+                    // Exclude Totals from the attributes as we log it in the revenue call
+                    var updatedAttributes = {};
+                    for (var key in expandedEvt.EventAttributes) {
+                        if (key !== 'Total Amount' && key !== 'Total Product Amount') {
+                            updatedAttributes[key] = expandedEvt.EventAttributes[key];
+                        }
+                    }
+
+                    // Purchase and Refund events generate an additional 'Total' event
+                    if (logRevenue && expandedEvt.EventName.indexOf('Total') > -1){
+       
+                        var revenueAmount = (expandedEvt.EventAttributes['Total Amount'] || 0) * (isRefund ? -1 : 1);
+                        var revenue = new amplitude.Revenue().setPrice(revenueAmount).setEventProperties(updatedAttributes);
+                        getInstance().logRevenueV2(revenue);
+                    }
+                    else
+                    {
+                       getInstance().logEvent(expandedEvt.EventName, updatedAttributes);
+                    }
+                });     
 
                 return true;
             }
