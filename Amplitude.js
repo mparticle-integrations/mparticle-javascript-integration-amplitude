@@ -99,12 +99,11 @@
         }
 
         function removeUserAttribute(key) {
-            if (isInitialized)  {
+            if (isInitialized) {
                 if (forwarderSettings.allowUnsetUserAttributes && forwarderSettings.allowUnsetUserAttributes == 'True') {
                     try {
-                        var attributeDict = {}
-                        attributeDict[key] = '-'
-                        getInstance().setUserProperties({'$unset':attributeDict});
+                        var identify = new amplitude.Identify().unset(key);
+                        getInstance().identify(identify);
 
                         return 'Successfully unset Amplitude user property: ' + key;
                     }
@@ -180,14 +179,11 @@
         }
 
         function logCommerce(event) {
-            if(event.ProductAction){   
-
+            if (event.ProductAction){
                 var isRefund = event.ProductAction.ProductActionType === mParticle.ProductActionType.Refund;
                 var logRevenue = (event.ProductAction.ProductActionType === mParticle.ProductActionType.Purchase) || isRefund;
                 var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
-                
                 expandedEvents.forEach(function(expandedEvt) {
-
                     // Exclude Totals from the attributes as we log it in the revenue call
                     var updatedAttributes = {};
                     for (var key in expandedEvt.EventAttributes) {
@@ -198,16 +194,14 @@
 
                     // Purchase and Refund events generate an additional 'Total' event
                     if (logRevenue && expandedEvt.EventName.indexOf('Total') > -1){
-       
                         var revenueAmount = (expandedEvt.EventAttributes['Total Amount'] || 0) * (isRefund ? -1 : 1);
                         var revenue = new amplitude.Revenue().setPrice(revenueAmount).setEventProperties(updatedAttributes);
                         getInstance().logRevenueV2(revenue);
                     }
-                    else
-                    {
-                       getInstance().logEvent(expandedEvt.EventName, updatedAttributes);
+                    else {
+                        getInstance().logEvent(expandedEvt.EventName, updatedAttributes);
                     }
-                });     
+                });
 
                 return true;
             }
@@ -245,10 +239,10 @@
                 ampSettings = {};
 
                 // allow the client to set custom amplitude init properties
-                if (typeof window.AmplitudeInitSettings === "object" &&
+                if (typeof window.AmplitudeInitSettings === 'object' &&
                     window.AmplitudeInitSettings !== null) {
                     ampSettings = window.AmplitudeInitSettings;
-                  }
+                }
 
                 if (forwarderSettings.saveEvents) {
                     ampSettings.saveEvents = forwarderSettings.saveEvents == 'True';
