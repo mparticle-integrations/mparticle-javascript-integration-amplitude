@@ -52,17 +52,17 @@
 
             if (isInitialized) {
                 try {
-                    if (event.EventDataType == MessageType.PageView) {
+                    if (event.EventDataType === MessageType.PageView) {
                         reportEvent = true;
                         logPageView(event);
                     }
-                    else if (event.EventDataType == MessageType.Commerce) {
+                    else if (event.EventDataType === MessageType.Commerce) {
                         reportEvent = logCommerce(event);
                     }
-                    else if (event.EventDataType == MessageType.PageEvent) {
+                    else if (event.EventDataType === MessageType.PageEvent) {
                         reportEvent = true;
 
-                        if (event.EventCategory == window.mParticle.EventType.Transaction) {
+                        if (event.EventCategory === window.mParticle.EventType.Transaction) {
                             logTransaction(event);
                         }
                         else {
@@ -86,7 +86,7 @@
 
         function setUserIdentity(id, type) {
             if (isInitialized) {
-                if (type == window.mParticle.IdentityType.CustomerId) {
+                if (type === window.mParticle.IdentityType.CustomerId) {
                     getInstance().setUserId(id);
                 }
                 else {
@@ -100,7 +100,7 @@
 
         function removeUserAttribute(key) {
             if (isInitialized) {
-                if (forwarderSettings.allowUnsetUserAttributes && forwarderSettings.allowUnsetUserAttributes == 'True') {
+                if (forwarderSettings.allowUnsetUserAttributes && forwarderSettings.allowUnsetUserAttributes === 'True') {
                     try {
                         var identify = new amplitude.Identify().unset(key);
                         getInstance().identify(identify);
@@ -251,7 +251,7 @@
                 }
 
                 if (forwarderSettings.saveEvents) {
-                    ampSettings.saveEvents = forwarderSettings.saveEvents == 'True';
+                    ampSettings.saveEvents = forwarderSettings.saveEvents === 'True';
                 }
 
                 if (forwarderSettings.savedMaxCount) {
@@ -263,15 +263,15 @@
                 }
 
                 if (forwarderSettings.includeUtm) {
-                    ampSettings.includeUtm = forwarderSettings.includeUtm == 'True';
+                    ampSettings.includeUtm = forwarderSettings.includeUtm === 'True';
                 }
 
                 if (forwarderSettings.includeReferrer) {
-                    ampSettings.includeReferrer = forwarderSettings.includeReferrer == 'True';
+                    ampSettings.includeReferrer = forwarderSettings.includeReferrer === 'True';
                 }
 
                 if (forwarderSettings.forceHttps) {
-                    ampSettings.forceHttps = forwarderSettings.forceHttps;
+                    ampSettings.forceHttps = forwarderSettings.forceHttps === 'True';
                 }
 
                 isDefaultInstance = (!forwarderSettings.instanceName || forwarderSettings.instanceName === 'default');
