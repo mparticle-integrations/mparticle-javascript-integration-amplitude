@@ -90,7 +90,10 @@
 
         function setUserIdentity(id, type) {
             if (isInitialized) {
-                if (type === window.mParticle.IdentityType.CustomerId) {
+                if (forwarderSettings.userIdentification === constants.MPID) {
+                    setUserAttribute(getIdentityTypeName(type), id);
+                }
+                else if (type === window.mParticle.IdentityType.CustomerId) {
                     getInstance().setUserId(id);
                 }
                 else {

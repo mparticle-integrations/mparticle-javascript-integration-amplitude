@@ -99,7 +99,10 @@
             };
 
             this.setUserProperties = function (props) {
-                self.props = props;
+                self.props = self.props || {};
+                for (key in props) {
+                    self.props[key] = props[key]
+                }
             };
 
             this.setUserId = function (id) {

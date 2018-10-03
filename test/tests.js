@@ -48,7 +48,13 @@ describe('Amplitude forwarder', function() {
             Email: 7,
             Alias: 8,
             FacebookCustomAudienceId: 9,
-            getName: function() {return 'CustomerID';}
+            getName: function(type) {
+                for (key in IdentityType) {
+                    if (IdentityType[key] === type) {
+                        return key;
+                    }
+                }
+            }
         },
         ReportingService = function() {
             var self = this;
@@ -188,9 +194,9 @@ describe('Amplitude forwarder', function() {
     });
 
     it('should set customer id user identity', function(done) {
-        mParticle.forwarder.setUserIdentity('tbreffni@mparticle.com', IdentityType.CustomerId);
+        mParticle.forwarder.setUserIdentity('customerId1', IdentityType.CustomerId);
 
-        amplitude.instances.newInstance.should.have.property('userId', 'tbreffni@mparticle.com');
+        amplitude.instances.newInstance.should.have.property('userId', 'customerId1');
 
         done();
     });
@@ -203,6 +209,22 @@ describe('Amplitude forwarder', function() {
 
         amplitude.instances.newInstance.should.have.property('userId', '123');
 
+        done();
+    });
+
+    it('should retain customerid as mpid when adding other identity types', function(done) {
+        mParticle.forwarder.init({
+            userIdentification: 'mpid',
+            instanceName: 'newInstance'
+        }, reportService.cb, true);
+
+        amplitude.instances.newInstance.should.have.property('userId', '123');
+
+        mParticle.forwarder.setUserIdentity('customerId1', IdentityType.CustomerId);
+        mParticle.forwarder.setUserIdentity('email@email.com', IdentityType.Email);
+
+        amplitude.instances.newInstance.props.should.have.property('CustomerId', 'customerId1');
+        amplitude.instances.newInstance.props.should.have.property('Email', 'email@email.com');
         done();
     });
 
