@@ -26,6 +26,10 @@
             Commerce: 16
         };
 
+    var constants = {
+        MPID: 'mpid'
+    };
+
     var constructor = function() {
         var self = this,
             isInitialized = false,
@@ -278,6 +282,17 @@
 
                 getInstance().init(forwarderSettings.apiKey, null, ampSettings);
                 isInitialized = true;
+
+                if (forwarderSettings.userIdentification === constants.MPID) {
+                    if (window.mParticle && window.mParticle.Identity) {
+                        user = window.mParticle.Identity.getCurrentUser();
+                        if (user) {
+                            userId = user.getMPID();
+                            getInstance().setUserId(userId);
+                        }
+                    }
+                }
+
                 return 'Successfully initialized: ' + name;
             }
             catch (e) {

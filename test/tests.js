@@ -99,6 +99,16 @@ describe('Amplitude forwarder', function() {
 
             return hash;
         };
+        mParticle.Identity = {
+            getCurrentUser: function() {
+                return {
+                    getMPID: function() {
+                        return '123';
+                    }
+
+                };
+            }
+        };
     });
 
     beforeEach(function() {
@@ -112,7 +122,7 @@ describe('Amplitude forwarder', function() {
             instanceName: 'newInstance'
         }, reportService.cb, true);
 
-       mParticle.init("faketoken");
+        mParticle.init('faketoken');
     });
 
     it('should have created an instance with name \'newInstance\'', function(done) {
@@ -185,6 +195,17 @@ describe('Amplitude forwarder', function() {
         done();
     });
 
+    it('should set customerid as mpid when selected in settings', function(done) {
+        mParticle.forwarder.init({
+            userIdentification: 'mpid',
+            instanceName: 'newInstance'
+        }, reportService.cb, true);
+
+        amplitude.instances.newInstance.should.have.property('userId', '123');
+
+        done();
+    });
+
     it('should set user attribute', function(done) {
         mParticle.forwarder.setUserAttribute('gender', 'male');
 
@@ -214,8 +235,8 @@ describe('Amplitude forwarder', function() {
 
     it('should log purchase commerce events', function(done) {
         mParticle.forwarder.process({
-            EventAttributes: { 
-               'CustomEventAttribute' : 'SomeEventAttributeValue'
+            EventAttributes: {
+                CustomEventAttribute : 'SomeEventAttributeValue'
             },
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -231,7 +252,7 @@ describe('Amplitude forwarder', function() {
                         Sku: '12345',
                         Price: 400,
                         Quantity: 1,
-                        Attributes: { 'CustomProductAttribute' : 'Cool' }
+                        Attributes: { CustomProductAttribute : 'Cool' }
                     }
                 ]
             }
@@ -239,8 +260,8 @@ describe('Amplitude forwarder', function() {
 
         // Transaction Level Attribute
         amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Transaction Id', 123);
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Coupon Code', "WinnerChickenDinner");
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Affiliation', "my-affiliation");
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Coupon Code', 'WinnerChickenDinner');
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Affiliation', 'my-affiliation');
         amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Shipping Amount', 10);
         amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Tax Amount', 40);
         amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
@@ -261,8 +282,8 @@ describe('Amplitude forwarder', function() {
 
     it('should log refund commerce events', function(done) {
         mParticle.forwarder.process({
-            EventAttributes: { 
-               'CustomEventAttribute' : 'SomeEventAttributeValue'
+            EventAttributes: {
+                CustomEventAttribute : 'SomeEventAttributeValue'
             },
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -278,7 +299,7 @@ describe('Amplitude forwarder', function() {
                         Sku: '12345',
                         Price: 400,
                         Quantity: 1,
-                        Attributes: { 'CustomProductAttribute' : 'Cool' }
+                        Attributes: { CustomProductAttribute : 'Cool' }
                     }
                 ]
             }
@@ -286,8 +307,8 @@ describe('Amplitude forwarder', function() {
 
         // Transaction Level Attribute
         amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Transaction Id', 123);
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Coupon Code', "WinnerChickenDinner");
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Affiliation', "my-affiliation");
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Coupon Code', 'WinnerChickenDinner');
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Affiliation', 'my-affiliation');
         amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Shipping Amount', 10);
         amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Tax Amount', 40);
         amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
@@ -309,8 +330,8 @@ describe('Amplitude forwarder', function() {
 
     it('should log AddToCart commerce events', function(done) {
         mParticle.forwarder.process({
-            EventAttributes: { 
-               'CustomEventAttribute' : 'SomeEventAttributeValue'
+            EventAttributes: {
+                CustomEventAttribute : 'SomeEventAttributeValue'
             },
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -326,7 +347,7 @@ describe('Amplitude forwarder', function() {
                         Sku: '12345',
                         Price: 400,
                         Quantity: 1,
-                        Attributes: { 'CustomProductAttribute' : 'Cool' }
+                        Attributes: { CustomProductAttribute : 'Cool' }
                     }
                 ]
             }
@@ -348,9 +369,9 @@ describe('Amplitude forwarder', function() {
     });
 
     it('should log RemoveFromCart commerce events', function(done) {
-      mParticle.forwarder.process({
-            EventAttributes: { 
-               'CustomEventAttribute' : 'SomeEventAttributeValue'
+        mParticle.forwarder.process({
+            EventAttributes: {
+                CustomEventAttribute : 'SomeEventAttributeValue'
             },
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -366,7 +387,7 @@ describe('Amplitude forwarder', function() {
                         Sku: '12345',
                         Price: 400,
                         Quantity: 1,
-                        Attributes: { 'CustomProductAttribute' : 'Cool' }
+                        Attributes: { CustomProductAttribute : 'Cool' }
                     }
                 ]
             }
