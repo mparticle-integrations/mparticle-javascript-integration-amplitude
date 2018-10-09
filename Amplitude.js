@@ -27,7 +27,7 @@
         };
 
     var constants = {
-        MPID: 'mpid'
+        MPID: 'mpId'
     };
 
     var constructor = function() {

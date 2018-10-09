@@ -203,7 +203,7 @@ describe('Amplitude forwarder', function() {
 
     it('should set customerid as mpid when selected in settings', function(done) {
         mParticle.forwarder.init({
-            userIdentification: 'mpid',
+            userIdentification: 'mpId',
             instanceName: 'newInstance'
         }, reportService.cb, true);
 
@@ -217,7 +217,7 @@ describe('Amplitude forwarder', function() {
             getMPID: function() {return 'abc';}
         };
         mParticle.forwarder.init({
-            userIdentification: 'mpid',
+            userIdentification: 'mpId',
             instanceName: 'newInstance'
         }, reportService.cb, true);
 
