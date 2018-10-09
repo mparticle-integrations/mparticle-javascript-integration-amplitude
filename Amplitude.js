@@ -90,10 +90,7 @@
 
         function setUserIdentity(id, type) {
             if (isInitialized) {
-                if (forwarderSettings.userIdentification === constants.MPID) {
-                    setUserAttribute(getIdentityTypeName(type), id);
-                }
-                else if (type === window.mParticle.IdentityType.CustomerId) {
+                if (type === window.mParticle.IdentityType.CustomerId) {
                     getInstance().setUserId(id);
                 }
                 else {
@@ -102,6 +99,17 @@
             }
             else {
                 return 'Can\'t call setUserIdentity on forwarder ' + name + ', not initialized';
+            }
+        }
+
+        function onUserIdentified(user) {
+            if (isInitialized) {
+                if (forwarderSettings.userIdentification === constants.MPID) {
+                    getInstance().setUserId(user.getMPID());
+                }
+            }
+            else {
+                return 'Can\'t call onUserIdentified on forwarder ' + name + ', not initialized';
             }
         }
 
@@ -307,6 +315,7 @@
         this.init = initForwarder;
         this.process = processEvent;
         this.setUserIdentity = setUserIdentity;
+        this.onUserIdentified = onUserIdentified;
         this.setUserAttribute = setUserAttribute;
         this.setOptOut = setOptOut;
         this.removeUserAttribute = removeUserAttribute;

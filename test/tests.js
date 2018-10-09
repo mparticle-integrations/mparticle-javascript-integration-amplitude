@@ -212,19 +212,19 @@ describe('Amplitude forwarder', function() {
         done();
     });
 
-    it('should retain customerid as mpid when adding other identity types', function(done) {
+    it('should set userId as MPID on onUserIdentified if forwarder settings has MPID as userIdField', function(done) {
+        var mParticleUser = {
+            getMPID: function() {return 'abc';}
+        };
         mParticle.forwarder.init({
             userIdentification: 'mpid',
             instanceName: 'newInstance'
         }, reportService.cb, true);
 
-        amplitude.instances.newInstance.should.have.property('userId', '123');
+        mParticle.forwarder.onUserIdentified(mParticleUser);
 
-        mParticle.forwarder.setUserIdentity('customerId1', IdentityType.CustomerId);
-        mParticle.forwarder.setUserIdentity('email@email.com', IdentityType.Email);
+        amplitude.instances.newInstance.should.have.property('userId', 'abc');
 
-        amplitude.instances.newInstance.props.should.have.property('CustomerId', 'customerId1');
-        amplitude.instances.newInstance.props.should.have.property('Email', 'email@email.com');
         done();
     });
 
