@@ -26,6 +26,10 @@
             Commerce: 16
         };
 
+    var constants = {
+        MPID: 'mpId'
+    };
+
     var constructor = function() {
         var self = this,
             isInitialized = false,
@@ -95,6 +99,17 @@
             }
             else {
                 return 'Can\'t call setUserIdentity on forwarder ' + name + ', not initialized';
+            }
+        }
+
+        function onUserIdentified(user) {
+            if (isInitialized) {
+                if (forwarderSettings.userIdentification === constants.MPID) {
+                    getInstance().setUserId(user.getMPID());
+                }
+            }
+            else {
+                return 'Can\'t call onUserIdentified on forwarder ' + name + ', not initialized';
             }
         }
 
@@ -278,6 +293,17 @@
 
                 getInstance().init(forwarderSettings.apiKey, null, ampSettings);
                 isInitialized = true;
+
+                if (forwarderSettings.userIdentification === constants.MPID) {
+                    if (window.mParticle && window.mParticle.Identity) {
+                        user = window.mParticle.Identity.getCurrentUser();
+                        if (user) {
+                            userId = user.getMPID();
+                            getInstance().setUserId(userId);
+                        }
+                    }
+                }
+
                 return 'Successfully initialized: ' + name;
             }
             catch (e) {
@@ -289,6 +315,7 @@
         this.init = initForwarder;
         this.process = processEvent;
         this.setUserIdentity = setUserIdentity;
+        this.onUserIdentified = onUserIdentified;
         this.setUserAttribute = setUserAttribute;
         this.setOptOut = setOptOut;
         this.removeUserAttribute = removeUserAttribute;
