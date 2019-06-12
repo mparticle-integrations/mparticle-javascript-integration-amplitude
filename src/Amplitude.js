@@ -16,6 +16,7 @@
 
 (function(window) {
     var name = 'Amplitude',
+        moduleId = 53,
         MessageType = {
             SessionStart: 1,
             SessionEnd: 2,
@@ -233,7 +234,7 @@
 
             try {
                 if (!window.amplitude) {
-                    if(testMode !== true) {
+                    if (testMode !== true) {
                         /* eslint-disable */
                         (function(e,t){var n=e.amplitude||{_q:[],_iq:{}};var r=t.createElement("script");r.type="text/javascript"
                             ;r.async=true;r.src="https://cdn.amplitude.com/libs/amplitude-4.2.1-min.gz.js"
@@ -309,7 +310,6 @@
             catch (e) {
                 return 'Failed to initialize: ' + name;
             }
-
         }
 
         this.init = initForwarder;
@@ -321,12 +321,30 @@
         this.removeUserAttribute = removeUserAttribute;
     };
 
+    function getId() {
+        return moduleId;
+    }
+
+    function register(config) {
+        if (config.kits) {
+            config.kits[name] = {
+                constructor: constructor
+            };
+        }
+    }
+
     if (!window || !window.mParticle || !window.mParticle.addForwarder) {
         return;
     }
 
     window.mParticle.addForwarder({
         name: name,
-        constructor: constructor
+        constructor: constructor,
+        getId: getId
     });
+
+    module.exports = {
+        register: register
+    };
 })(window);
+

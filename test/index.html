@@ -13,7 +13,6 @@
     <script src="../node_modules/blanket/dist/mocha/blanket_mocha.js"></script>
     <script src="mockhttprequest.js"></script>
     <script>
-
         window.mParticle.addForwarder = function (forwarder) {
                 window.mParticle.forwarder = new forwarder.constructor();
         };
@@ -123,7 +122,7 @@
 
         window.amplitude = new amp();
     </script>
-    <script src="../amplitude.js" data-cover></script>
+    <script src="../Amplitude.js" data-cover></script>
     <script>mocha.setup('bdd')</script>
     <script src="tests.js"></script>
     <script>
