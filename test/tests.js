@@ -110,8 +110,20 @@ describe('Amplitude forwarder', function() {
                 return {
                     getMPID: function() {
                         return '123';
+                    },
+                    getUserIdentities: function() {
+                        return {
+                            userIdentities: {
+                                customerid: '123'
+                            }
+                        };
+                    },
+                    getAllUserAttributes: function() {
+                        return {};
+                    },
+                    getConsentState: function() {
+                        return {};
                     }
-
                 };
             }
         };
@@ -128,7 +140,7 @@ describe('Amplitude forwarder', function() {
             instanceName: 'newInstance'
         }, reportService.cb, true);
 
-        mParticle.init('faketoken');
+        mParticle.init('faketoken', {requestConfig: false, workspaceToken: 'fakeToken'});
     });
 
     it('should have created an instance with name \'newInstance\'', function(done) {
