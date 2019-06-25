@@ -1,10 +1,27 @@
 {
-  "name": "integration-amplitude",
+  "name": "@mparticle/web-amplitude-kit",
+  "version": "2.0.0-rc.1",
+  "author": "mParticle Developers <developers@mparticle.com> (https://www.mparticle.com)",
   "description": "mParticle integration sdk for Amplitude",
-  "repository": "https://github.com/mParticle/integration-amplitude",
+  "browser": "dist/Amplitude.js",
+  "files": [
+    "dist/Amplitude.js"
+  ],
+  "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-amplitude",
+  "scripts": {
+    "build": "rollup --config rollup.config.js",
+    "watch": "rollup --config rollup.config.js -w"
+  },
   "devDependencies": {
     "blanket": "^1.1.7",
     "should": "^7.1.0",
-    "mocha": "^2.3.2"
-  }
+    "mocha": "^2.3.2",
+    "rollup": "^1.13.1",
+    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup-plugin-node-resolve": "^5.0.1"
+  },
+  "dependencies": {
+    "@mparticle/web-sdk": "^2.9.4-rc.1"
+  },
+  "license": "Apache-2.0"
 }
