@@ -8,6 +8,10 @@
     "dist/Amplitude.js"
   ],
   "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-amplitude",
+  "scripts": {
+    "build": "rollup --config rollup.config.js",
+    "watch": "rollup --config rollup.config.js -w"
+  },
   "devDependencies": {
     "blanket": "^1.1.7",
     "should": "^7.1.0",
