@@ -1,6 +1,5 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(global = global || self, factory(global['mp-amplitude-kit'] = {}));
 }(this, function (exports) {
 	function createCommonjsModule(fn, module) {
