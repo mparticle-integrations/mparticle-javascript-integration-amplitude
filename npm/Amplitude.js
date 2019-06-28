@@ -1,3 +1,26 @@
+Object.defineProperty(exports, '__esModule', { value: true });
+
+/*!
+ * isobject <https://github.com/jonschlinkert/isobject>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObject(val) {
+  return val != null && typeof val === 'object' && Array.isArray(val) === false;
+}
+
+var isobject = /*#__PURE__*/Object.freeze({
+  'default': isObject
+});
+
+function getCjsExportFromNamespace (n) {
+	return n && n['default'] || n;
+}
+
+var isobject$1 = getCjsExportFromNamespace(isobject);
+
 /* eslint-disable no-undef*/
 //
 //  Copyright 2015 mParticle, Inc.
@@ -14,7 +37,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-var isobject = require('isobject');
+
 
 var name = 'Amplitude',
     moduleId = 53,
@@ -239,22 +262,22 @@ var constructor = function() {
                     /* eslint-disable */
                     (function(e,t){var n=e.amplitude||{_q:[],_iq:{}};var r=t.createElement("script");r.type="text/javascript"
                         ;r.async=true;r.src="https://cdn.amplitude.com/libs/amplitude-4.2.1-min.gz.js"
-                        ;r.onload=function(){if(e.amplitude.runQueuedFunctions){e.amplitude.runQueuedFunctions()}else{console.log("[Amplitude] Error: could not load SDK")}}
+                        ;r.onload=function(){if(e.amplitude.runQueuedFunctions){e.amplitude.runQueuedFunctions();}else{console.log("[Amplitude] Error: could not load SDK");}}
                         ;var i=t.getElementsByTagName("script")[0];i.parentNode.insertBefore(r,i);function s(e,t){e.prototype[t]=function(){
-                        this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));return this}}
+                        this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));return this};}
                         var o=function(){this._q=[];return this}
                         ;var a=["add","append","clearAll","prepend","set","setOnce","unset"]
-                        ;for(var u=0;u<a.length;u++){s(o,a[u])}n.Identify=o;var c=function(){this._q=[]
+                        ;for(var u=0;u<a.length;u++){s(o,a[u]);}n.Identify=o;var c=function(){this._q=[]
                         ;return this}
                         ;var l=["setProductId","setQuantity","setPrice","setRevenueType","setEventProperties"]
-                        ;for(var p=0;p<l.length;p++){s(c,l[p])}n.Revenue=c
+                        ;for(var p=0;p<l.length;p++){s(c,l[p]);}n.Revenue=c
                         ;var d=["init","logEvent","logRevenue","setUserId","setUserProperties","setOptOut","setVersionName","setDomain","setDeviceId","setGlobalUserProperties","identify","clearUserProperties","setGroup","logRevenueV2","regenerateDeviceId","logEventWithTimestamp","logEventWithGroups","setSessionId","resetSessionId"]
                         ;function v(e){function t(t){e[t]=function(){
-                        e._q.push([t].concat(Array.prototype.slice.call(arguments,0)))}}
-                        for(var n=0;n<d.length;n++){t(d[n])}}v(n);n.getInstance=function(e){
+                        e._q.push([t].concat(Array.prototype.slice.call(arguments,0)));};}
+                        for(var n=0;n<d.length;n++){t(d[n]);}}v(n);n.getInstance=function(e){
                         e=(!e||e.length===0?"$default_instance":e).toLowerCase()
-                        ;if(!n._iq.hasOwnProperty(e)){n._iq[e]={_q:[]};v(n._iq[e])}return n._iq[e]}
-                        ;e.amplitude=n})(window,document);
+                        ;if(!n._iq.hasOwnProperty(e)){n._iq[e]={_q:[]};v(n._iq[e]);}return n._iq[e]}
+                        ;e.amplitude=n;})(window,document);
                     /* eslint-enable */
                 }
             }
@@ -332,12 +355,12 @@ function register(config) {
         return;
     }
 
-    if (!isobject(config)) {
+    if (!isobject$1(config)) {
         window.console.log('\'config\' must be an object. You passed in a ' + typeof config);
         return;
     }
     
-    if (isobject(config.kits)) {
+    if (isobject$1(config.kits)) {
         config.kits[name] = {
             constructor: constructor
         };
@@ -358,6 +381,10 @@ if (window && window.mParticle && window.mParticle.addForwarder) {
     });
 }
 
-module.exports = {
+var Amplitude = {
     register: register
 };
+var Amplitude_1 = Amplitude.register;
+
+exports.default = Amplitude;
+exports.register = Amplitude_1;

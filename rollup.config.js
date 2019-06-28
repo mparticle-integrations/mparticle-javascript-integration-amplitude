@@ -1,28 +1,46 @@
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 
-export default [{
-    input: 'src/Amplitude.js',
-    output: {
-        file: 'Amplitude.js',
-        format: 'umd',
-        exports: 'named',
-        name: 'mp-amplitude-kit',
-        strict: false
+export default [
+    {
+        input: 'src/Amplitude.js',
+        output: {
+            file: 'Amplitude.js',
+            format: 'iife',
+            exports: 'named',
+            name: 'mpAmplitudeKit',
+            strict: false
+        },
+        plugins: [
+            resolve({
+                browser: true
+            }),
+            commonjs()
+        ]
     },
-    plugins: [
-        resolve({
-            browser: true
-        }),
-        commonjs()
-    ]},
     {
         input: 'src/Amplitude.js',
         output: {
             file: 'dist/Amplitude.js',
-            format: 'umd',
+            format: 'iife',
             exports: 'named',
-            name: 'mp-amplitude-kit',
+            name: 'mpAmplitudeKit',
+            strict: false
+        },
+        plugins: [
+            resolve({
+                browser: true
+            }),
+            commonjs()
+        ]
+    },
+    {
+        input: 'src/Amplitude.js',
+        output: {
+            file: 'npm/Amplitude.js',
+            format: 'cjs',
+            exports: 'named',
+            name: 'mpAmplitudeKit',
             strict: false
         },
         plugins: [
