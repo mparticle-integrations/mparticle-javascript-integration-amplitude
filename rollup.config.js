@@ -21,7 +21,7 @@ export default [
     {
         input: 'src/Amplitude.js',
         output: {
-            file: 'dist/Amplitude.js',
+            file: 'dist/Amplitude.iife.js',
             format: 'iife',
             exports: 'named',
             name: 'mpAmplitudeKit',
@@ -37,7 +37,7 @@ export default [
     {
         input: 'src/Amplitude.js',
         output: {
-            file: 'npm/Amplitude.js',
+            file: 'dist/Amplitude.common.js',
             format: 'cjs',
             exports: 'named',
             name: 'mpAmplitudeKit',

@@ -10,16 +10,6 @@ var mpAmplitudeKit = (function (exports) {
     return val != null && typeof val === 'object' && Array.isArray(val) === false;
   }
 
-  var isobject = /*#__PURE__*/Object.freeze({
-    'default': isObject
-  });
-
-  function getCjsExportFromNamespace (n) {
-  	return n && n['default'] || n;
-  }
-
-  var isobject$1 = getCjsExportFromNamespace(isobject);
-
   /* eslint-disable no-undef*/
   //
   //  Copyright 2015 mParticle, Inc.
@@ -354,12 +344,12 @@ var mpAmplitudeKit = (function (exports) {
               return;
           }
 
-          if (!isobject$1(config)) {
+          if (!isObject(config)) {
               window.console.log('\'config\' must be an object. You passed in a ' + typeof config);
               return;
           }
           
-          if (isobject$1(config.kits)) {
+          if (isObject(config.kits)) {
               config.kits[name] = {
                   constructor: constructor
               };
