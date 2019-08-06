@@ -1,6 +1,16 @@
 {
     "env": {
-        "browser": true
+        "node": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "modules": true,
+        },
+    },
+    "globals": {
+        "window": true
     },
     "extends": "eslint:recommended",
     "rules": {
@@ -35,12 +45,12 @@
         ],
         "comma-spacing": [
             "error",
-            { before: false, after: true }
+            { "before": false, "after": true }
         ],
         "quote-props": [
             "error",
             "as-needed",
-            { keywords: false, unnecessary: true, numbers: false }
+            { "keywords": false, "unnecessary": true, "numbers": false }
         ],
         "no-multi-spaces": "error",
         "no-implicit-globals": "error"
