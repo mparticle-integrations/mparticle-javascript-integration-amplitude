@@ -43,5 +43,6 @@
             { keywords: false, unnecessary: true, numbers: false }
         ],
         "no-multi-spaces": "error",
+        "no-implicit-globals": "error"
     }
 }

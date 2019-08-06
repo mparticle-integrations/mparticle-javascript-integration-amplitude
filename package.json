@@ -9,10 +9,12 @@
   ],
   "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-amplitude",
   "scripts": {
+    "test" : "jest",
     "build": "rollup --config rollup.config.js",
     "watch": "rollup --config rollup.config.js -w"
   },
   "devDependencies": {
+    "jest": "^24.8.0",
     "mocha": "^2.3.2",
     "rollup": "^1.13.1",
     "rollup-plugin-commonjs": "^10.0.0",
@@ -20,8 +22,9 @@
     "should": "^7.1.0"
   },
   "dependencies": {
-    "isobject": "^4.0.0",
-    "@mparticle/web-sdk": "^2.9.4-rc.1"
+    "@mparticle/web-amplitude-kit": "^2.0.0-rc.2",
+    "@mparticle/web-sdk": "^2.9.4-rc.1",
+    "isobject": "^4.0.0"
   },
   "license": "Apache-2.0"
 }

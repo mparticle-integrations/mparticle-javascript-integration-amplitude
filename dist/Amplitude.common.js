@@ -1,5 +1,9 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
 /*!
  * isobject <https://github.com/jonschlinkert/isobject>
  *
@@ -11,16 +15,7 @@ function isObject(val) {
   return val != null && typeof val === 'object' && Array.isArray(val) === false;
 }
 
-var isobject = /*#__PURE__*/Object.freeze({
-  'default': isObject
-});
-
-function getCjsExportFromNamespace (n) {
-	return n && n['default'] || n;
-}
-
-var isobject$1 = getCjsExportFromNamespace(isobject);
-
+var Amplitude = createCommonjsModule(function (module) {
 /* eslint-disable no-undef*/
 //
 //  Copyright 2015 mParticle, Inc.
@@ -36,8 +31,8 @@ var isobject$1 = getCjsExportFromNamespace(isobject);
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-
-    
+(function() {
+    var isobject = isObject;
 
     var name = 'Amplitude',
         moduleId = 53,
@@ -254,7 +249,6 @@ var isobject$1 = getCjsExportFromNamespace(isobject);
 
             forwarderSettings = settings;
             reportingService = service;
-            isTesting = testMode;
 
             try {
                 if (!window.amplitude) {
@@ -321,9 +315,9 @@ var isobject$1 = getCjsExportFromNamespace(isobject);
 
                 if (forwarderSettings.userIdentification === constants.MPID) {
                     if (window.mParticle && window.mParticle.Identity) {
-                        user = window.mParticle.Identity.getCurrentUser();
+                        var user = window.mParticle.Identity.getCurrentUser();
                         if (user) {
-                            userId = user.getMPID();
+                            var userId = user.getMPID();
                             getInstance().setUserId(userId);
                         }
                     }
@@ -355,12 +349,12 @@ var isobject$1 = getCjsExportFromNamespace(isobject);
             return;
         }
 
-        if (!isobject$1(config)) {
+        if (!isobject(config)) {
             window.console.log('\'config\' must be an object. You passed in a ' + typeof config);
             return;
         }
         
-        if (isobject$1(config.kits)) {
+        if (isobject(config.kits)) {
             config.kits[name] = {
                 constructor: constructor
             };
@@ -381,9 +375,11 @@ var isobject$1 = getCjsExportFromNamespace(isobject);
         });
     }
 
-    var Amplitude = {
+    module.exports = {
         register: register
     };
+})();
+});
 var Amplitude_1 = Amplitude.register;
 
 exports.default = Amplitude;

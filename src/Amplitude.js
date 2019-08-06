@@ -13,7 +13,7 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-
+(function() {
     var isobject = require('isobject');
 
     var name = 'Amplitude',
@@ -231,7 +231,6 @@
 
             forwarderSettings = settings;
             reportingService = service;
-            isTesting = testMode;
 
             try {
                 if (!window.amplitude) {
@@ -298,9 +297,9 @@
 
                 if (forwarderSettings.userIdentification === constants.MPID) {
                     if (window.mParticle && window.mParticle.Identity) {
-                        user = window.mParticle.Identity.getCurrentUser();
+                        var user = window.mParticle.Identity.getCurrentUser();
                         if (user) {
-                            userId = user.getMPID();
+                            var userId = user.getMPID();
                             getInstance().setUserId(userId);
                         }
                     }
@@ -361,3 +360,4 @@
     module.exports = {
         register: register
     };
+})();
