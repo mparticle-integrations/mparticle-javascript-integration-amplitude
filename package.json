@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "isobject": "^4.0.0",
-    "@mparticle/web-sdk": "^2.9.4-rc.1"
+    "@mparticle/web-sdk": "^2.11.1"
   },
   "license": "Apache-2.0"
 }
