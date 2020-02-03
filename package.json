@@ -1,8 +1,9 @@
 {
   "name": "@mparticle/web-amplitude-kit",
-  "version": "2.0.0-rc.2",
+  "version": "2.0.1",
   "author": "mParticle Developers <developers@mparticle.com> (https://www.mparticle.com)",
   "description": "mParticle integration sdk for Amplitude",
+  "main": "dist/Amplitude.common.js",
   "browser": "dist/Amplitude.common.js",
   "files": [
     "dist/Amplitude.common.js"
@@ -21,7 +22,7 @@
   },
   "dependencies": {
     "isobject": "^4.0.0",
-    "@mparticle/web-sdk": "^2.9.4-rc.1"
+    "@mparticle/web-sdk": "^2.11.1"
   },
   "license": "Apache-2.0"
 }
