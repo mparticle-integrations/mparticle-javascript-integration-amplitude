@@ -261,8 +261,6 @@
             reportingService = service;
             isTesting = testMode;
 
-            // debugger;
-
             try {
                 if (!window.amplitude) {
                     if (testMode !== true) {
