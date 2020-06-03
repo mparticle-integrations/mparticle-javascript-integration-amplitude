@@ -1,6 +1,6 @@
 {
   "name": "@mparticle/web-amplitude-kit",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": "mParticle Developers <developers@mparticle.com> (https://www.mparticle.com)",
   "description": "mParticle integration sdk for Amplitude",
   "main": "dist/Amplitude.common.js",
@@ -11,14 +11,29 @@
   "repository": "https://github.com/mparticle-integrations/mparticle-javascript-integration-amplitude",
   "scripts": {
     "build": "rollup --config rollup.config.js",
+    "dev": "npm run build && npm run test",
+    "test": "node test/boilerplate/test-karma.js",
     "watch": "rollup --config rollup.config.js -w"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "karma": "^5.0.9",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-edge-launcher": "^0.4.2",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-ie-launcher": "^1.0.0",
+    "karma-junit-reporter": "^1.2.0",
+    "karma-mocha": "^1.3.0",
+    "karma-safari-launcher": "^1.0.0",
     "mocha": "^2.3.2",
+    "prettier": "^2.0.5",
     "rollup": "^1.13.1",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-node-resolve": "^5.0.1",
-    "should": "^7.1.0"
+    "shelljs": "^0.8.4",
+    "should": "^7.1.1",
+    "watchify": "^3.11.1"
   },
   "dependencies": {
     "isobject": "^4.0.0",
