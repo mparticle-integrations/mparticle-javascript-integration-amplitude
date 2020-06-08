@@ -463,7 +463,7 @@ describe('Amplitude forwarder', function() {
     });
 
     describe('Custom Attributes with Arrays', function() {
-        it('should log page view with custom attributes of an array', function() {
+        it('should turn a stringified array into an array as part of custom attributes when logging a page view', function() {
             mParticle.forwarder.process({
                 EventDataType: MessageType.PageView,
                 EventName: 'Test Page View',
@@ -478,8 +478,8 @@ describe('Amplitude forwarder', function() {
             amplitude.instances.newInstance.attrs.should.have.property('Path', 'Test');
             amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi']);
         });
-    
-        it('should log purchase commerce events', function(done) {
+
+        it('should turn a stringified array into an array as part of custom attributes when logging a purchase commerce events', function(done) {
             mParticle.forwarder.process({
                 EventAttributes: {
                     CustomEventAttribute : 'SomeEventAttributeValue',
@@ -506,28 +506,29 @@ describe('Amplitude forwarder', function() {
             });
     
             // Transaction Level Attribute
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Transaction Id', 123);
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Coupon Code', 'WinnerChickenDinner');
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Affiliation', 'my-affiliation');
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Shipping Amount', 10);
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Tax Amount', 40);
             amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
             amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Array', ['abc', 'def', 'ghi']);
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.not.have.property('Total Amount');
-            amplitude.instances.newInstance.revenueObj.should.have.property('price', 234);
     
             // Product level attributes
-            amplitude.instances.newInstance.attrs.should.have.property('Id', '12345');
-            amplitude.instances.newInstance.attrs.should.have.property('Item Price', 400);
-            amplitude.instances.newInstance.attrs.should.have.property('Quantity', 1);
-            amplitude.instances.newInstance.attrs.should.have.property('Transaction Id', 123);
             amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
             amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi'])
-            amplitude.instances.newInstance.attrs.should.have.property('CustomProductAttribute', 'Cool');
-            amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi']);
-            amplitude.instances.newInstance.attrs.should.not.property('Total Product Amount');
 
     
+            done();
+        });
+
+        it('should turn a stringified array into an array as part of custom attributes when logging a regular page event', function(done) {
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageEvent,
+                EventAttributes: {
+                    CustomEventAttribute : 'SomeEventAttributeValue',
+                    Array: JSON.stringify(['abc', 'def', 'ghi']),
+                }
+            });
+
+            amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
+            amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi'])
+
             done();
         });
     });
