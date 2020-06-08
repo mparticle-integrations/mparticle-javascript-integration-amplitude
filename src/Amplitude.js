@@ -191,6 +191,7 @@
 
         function logPageView(data) {
             if (data.EventAttributes) {
+                data.EventAttributes = convertArrayAttrs(data.EventAttributes);
                 getInstance().logEvent('Viewed ' + data.EventName, data.EventAttributes);
             }
             else {
@@ -200,6 +201,7 @@
 
         function logEvent(data) {
             if (data.EventAttributes) {
+                data.EventAttributes = convertArrayAttrs(data.EventAttributes);
                 getInstance().logEvent(data.EventName, data.EventAttributes);
             }
             else {
@@ -237,6 +239,8 @@
                         }
                     }
 
+                    updatedAttributes = convertArrayAttrs(updatedAttributes);
+
                     // Purchase and Refund events generate an additional 'Total' event
                     if (logRevenue && expandedEvt.EventName.indexOf('Total') > -1){
                         var revenueAmount = (expandedEvt.EventAttributes['Total Amount'] || 0) * (isRefund ? -1 : 1);
@@ -252,6 +256,24 @@
             }
 
             return false;
+        }
+
+        function convertArrayAttrs(customAttributes) {
+            for (var key in customAttributes) {
+                if (typeof customAttributes[key] === 'string') {
+                    try {
+                        var parsed = JSON.parse(customAttributes[key]);
+                        if (Array.isArray(parsed)) {
+                            customAttributes[key] = parsed;
+                        }
+
+                    } catch (e) {
+                        // if parsing fails, don't update the customAttribute object
+                    }
+                }
+            }
+
+            return customAttributes;
         }
 
         function initForwarder(settings, service, testMode) {
