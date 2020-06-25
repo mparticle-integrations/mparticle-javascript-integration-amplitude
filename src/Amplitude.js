@@ -263,7 +263,7 @@
                 if (typeof customAttributes[key] === 'string' && forwarderSettings.sendEventAttributesAsObjects === 'True') {
                     try {
                         var parsed = JSON.parse(customAttributes[key]);
-                        if (Array.isArray(parsed)) {
+                        if (typeof parsed === 'object') {
                             customAttributes[key] = parsed;
                         }
 
