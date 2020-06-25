@@ -462,7 +462,16 @@ describe('Amplitude forwarder', function() {
         done();
     });
 
-    describe('Custom Attributes with Arrays', function() {
+    describe('Custom Attributes with Arrays when sendEventAttributesAsObjects is true', function() {
+        beforeEach(function () {
+            window.amplitude.reset();
+            mParticle.forwarder.init({
+                sendEventAttributesAsObjects: 'True'
+            }, reportService.cb, true);
+
+            mParticle.init('faketoken', { requestConfig: false, workspaceToken: 'fakeToken' });
+        });
+
         it('should turn a stringified array into an array as part of custom attributes when logging a page view', function() {
             mParticle.forwarder.process({
                 EventDataType: MessageType.PageView,

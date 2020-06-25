@@ -238,7 +238,7 @@
                             updatedAttributes[key] = expandedEvt.EventAttributes[key];
                         }
                     }
-
+                    
                     updatedAttributes = convertArrayAttrs(updatedAttributes);
 
                     // Purchase and Refund events generate an additional 'Total' event
@@ -260,7 +260,7 @@
 
         function convertArrayAttrs(customAttributes) {
             for (var key in customAttributes) {
-                if (typeof customAttributes[key] === 'string') {
+                if (typeof customAttributes[key] === 'string' && forwarderSettings.sendEventAttributesAsObjects === 'True') {
                     try {
                         var parsed = JSON.parse(customAttributes[key]);
                         if (Array.isArray(parsed)) {
