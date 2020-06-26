@@ -191,7 +191,7 @@
 
         function logPageView(data) {
             if (data.EventAttributes) {
-                data.EventAttributes = convertArrayAttrs(data.EventAttributes);
+                data.EventAttributes = convertJsonAttrs(data.EventAttributes);
                 getInstance().logEvent('Viewed ' + data.EventName, data.EventAttributes);
             }
             else {
@@ -201,7 +201,7 @@
 
         function logEvent(data) {
             if (data.EventAttributes) {
-                data.EventAttributes = convertArrayAttrs(data.EventAttributes);
+                data.EventAttributes = convertJsonAttrs(data.EventAttributes);
                 getInstance().logEvent(data.EventName, data.EventAttributes);
             }
             else {
@@ -239,7 +239,7 @@
                         }
                     }
                     
-                    updatedAttributes = convertArrayAttrs(updatedAttributes);
+                    updatedAttributes = convertJsonAttrs(updatedAttributes);
 
                     // Purchase and Refund events generate an additional 'Total' event
                     if (logRevenue && expandedEvt.EventName.indexOf('Total') > -1){
@@ -258,17 +258,19 @@
             return false;
         }
 
-        function convertArrayAttrs(customAttributes) {
-            for (var key in customAttributes) {
-                if (typeof customAttributes[key] === 'string' && forwarderSettings.sendEventAttributesAsObjects === 'True') {
-                    try {
-                        var parsed = JSON.parse(customAttributes[key]);
-                        if (typeof parsed === 'object') {
-                            customAttributes[key] = parsed;
+        function convertJsonAttrs(customAttributes) {
+            if (forwarderSettings.sendEventAttributesAsObjects === 'True') {
+                for (var key in customAttributes) {
+                    if (typeof customAttributes[key] === 'string') {
+                        try {
+                            var parsed = JSON.parse(customAttributes[key]);
+                            if (typeof parsed === 'object') {
+                                customAttributes[key] = parsed;
+                            }
+    
+                        } catch (e) {
+                            // if parsing fails, don't update the customAttribute object
                         }
-
-                    } catch (e) {
-                        // if parsing fails, don't update the customAttribute object
                     }
                 }
             }
