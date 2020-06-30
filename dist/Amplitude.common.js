@@ -204,6 +204,7 @@ function isObject(val) {
 
         function logPageView(data) {
             if (data.EventAttributes) {
+                data.EventAttributes = convertJsonAttrs(data.EventAttributes);
                 getInstance().logEvent('Viewed ' + data.EventName, data.EventAttributes);
             }
             else {
@@ -213,6 +214,7 @@ function isObject(val) {
 
         function logEvent(data) {
             if (data.EventAttributes) {
+                data.EventAttributes = convertJsonAttrs(data.EventAttributes);
                 getInstance().logEvent(data.EventName, data.EventAttributes);
             }
             else {
@@ -249,6 +251,8 @@ function isObject(val) {
                             updatedAttributes[key] = expandedEvt.EventAttributes[key];
                         }
                     }
+                    
+                    updatedAttributes = convertJsonAttrs(updatedAttributes);
 
                     // Purchase and Refund events generate an additional 'Total' event
                     if (logRevenue && expandedEvt.EventName.indexOf('Total') > -1){
@@ -265,6 +269,26 @@ function isObject(val) {
             }
 
             return false;
+        }
+
+        function convertJsonAttrs(customAttributes) {
+            if (forwarderSettings.sendEventAttributesAsObjects === 'True') {
+                for (var key in customAttributes) {
+                    if (typeof customAttributes[key] === 'string') {
+                        try {
+                            var parsed = JSON.parse(customAttributes[key]);
+                            if (typeof parsed === 'object') {
+                                customAttributes[key] = parsed;
+                            }
+    
+                        } catch (e) {
+                            // if parsing fails, don't update the customAttribute object
+                        }
+                    }
+                }
+            }
+
+            return customAttributes;
         }
 
         function initForwarder(settings, service, testMode) {
