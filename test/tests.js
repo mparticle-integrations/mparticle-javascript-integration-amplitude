@@ -461,6 +461,95 @@ describe('Amplitude forwarder', function() {
 
         done();
     });
+
+    describe('Custom Attributes with Arrays when sendEventAttributesAsObjects is true', function() {
+        beforeEach(function () {
+            window.amplitude.reset();
+            mParticle.forwarder.init({
+                sendEventAttributesAsObjects: 'True',
+                instanceName: 'newInstance'
+            }, reportService.cb, true);
+
+            mParticle.init('faketoken', { requestConfig: false, workspaceToken: 'fakeToken' });
+        });
+
+        it('should turn a stringified array into an array as part of custom attributes when logging a page view', function() {
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageView,
+                EventName: 'Test Page View',
+                EventAttributes: {
+                    Path: 'Test',
+                    Array: JSON.stringify(['abc', 'def', 'ghi']),
+                    Obj: JSON.stringify({ foo: 'bar' }),
+                }
+            });
+    
+            amplitude.instances.newInstance.should.have.property('eventName', 'Viewed Test Page View');
+            amplitude.instances.newInstance.should.have.property('attrs');
+            amplitude.instances.newInstance.attrs.should.have.property('Path', 'Test');
+            amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi']);
+            amplitude.instances.newInstance.attrs.Obj.should.have.property('foo', 'bar');
+        });
+
+        it('should turn a stringified array into an array as part of custom attributes when logging a purchase commerce events', function(done) {
+            mParticle.forwarder.process({
+                EventAttributes: {
+                    CustomEventAttribute: 'SomeEventAttributeValue',
+                    Array: JSON.stringify(['abc', 'def', 'ghi']),
+                    Obj: JSON.stringify({ foo: 'bar' }),
+                },
+                EventDataType: MessageType.Commerce,
+                ProductAction: {
+                    TransactionId: 123,
+                    Affiliation: 'my-affiliation',
+                    TotalAmount: 234,
+                    TaxAmount: 40,
+                    ShippingAmount: 10,
+                    CouponCode: 'WinnerChickenDinner',
+                    ProductActionType: ProductActionType.Purchase,
+                    ProductList: [
+                        {
+                            Sku: '12345',
+                            Price: 400,
+                            Quantity: 1,
+                            Attributes: { CustomProductAttribute : 'Cool' }
+                        }
+                    ]
+                }
+            });
+    
+            // Transaction Level Attribute
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Array', ['abc', 'def', 'ghi']);
+            amplitude.instances.newInstance.revenueObj.eventAttributes.Obj.should.have.property('foo', 'bar');
+    
+            // Product level attributes
+            amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
+            amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi']);
+            amplitude.instances.newInstance.attrs.Obj.should.have.property('foo', 'bar');
+
+    
+            done();
+        });
+
+        it('should turn a stringified array into an array as part of custom attributes when logging a regular page event', function(done) {
+            mParticle.forwarder.process({
+                EventDataType: MessageType.PageEvent,
+                EventAttributes: {
+                    CustomEventAttribute : 'SomeEventAttributeValue',
+                    Array: JSON.stringify(['abc', 'def', 'ghi']),
+                    Obj: JSON.stringify({ foo: 'bar' }),
+                }
+            });
+
+            amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
+            amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi']);
+            amplitude.instances.newInstance.attrs.Obj.should.have.property('foo', 'bar');
+
+
+            done();
+        });
+    });
 });
 
 describe('Default amplitude settings', function() {
