@@ -296,7 +296,6 @@ function isObject(val) {
 
             forwarderSettings = settings;
             reportingService = service;
-            isTesting = testMode;
 
             try {
                 if (!window.amplitude) {

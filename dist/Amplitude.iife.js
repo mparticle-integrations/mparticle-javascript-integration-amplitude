@@ -295,7 +295,6 @@ var mpAmplitudeKit = (function (exports) {
 
               forwarderSettings = settings;
               reportingService = service;
-              isTesting = testMode;
 
               try {
                   if (!window.amplitude) {
