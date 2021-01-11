@@ -5,22 +5,6 @@ export default [
     {
         input: 'src/Amplitude.js',
         output: {
-            file: 'Amplitude.js',
-            format: 'iife',
-            exports: 'named',
-            name: 'mpAmplitudeKit',
-            strict: false
-        },
-        plugins: [
-            resolve({
-                browser: true
-            }),
-            commonjs()
-        ]
-    },
-    {
-        input: 'src/Amplitude.js',
-        output: {
             file: 'dist/Amplitude.iife.js',
             format: 'iife',
             exports: 'named',
