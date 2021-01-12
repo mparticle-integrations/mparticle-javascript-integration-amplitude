@@ -1,14 +1,15 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var toString = {}.toString;
+/*!
+ * isobject <https://github.com/jonschlinkert/isobject>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
 
-var isarray = Array.isArray || function (arr) {
-  return toString.call(arr) == '[object Array]';
-};
-
-var isobject = function isObject(val) {
-  return val != null && typeof val === 'object' && isarray(val) === false;
-};
+function isObject(val) {
+  return val != null && typeof val === 'object' && Array.isArray(val) === false;
+}
 
 /* eslint-disable no-undef*/
 //
@@ -376,12 +377,12 @@ var isobject = function isObject(val) {
             return;
         }
 
-        if (!isobject(config)) {
+        if (!isObject(config)) {
             console.log('\'config\' must be an object. You passed in a ' + typeof config);
             return;
         }
         
-        if (isobject(config.kits)) {
+        if (isObject(config.kits)) {
             config.kits[name] = {
                 constructor: constructor
             };
