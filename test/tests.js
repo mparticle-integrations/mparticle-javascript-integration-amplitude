@@ -226,6 +226,9 @@ describe('Amplitude forwarder', function () {
     });
 
     it('should set customer id user identity', function (done) {
+        mParticle.getVersion = function () {
+            return '1.16.3';
+        };
         mParticle.forwarder.setUserIdentity(
             'customerId1',
             IdentityType.CustomerId
@@ -255,6 +258,9 @@ describe('Amplitude forwarder', function () {
     });
 
     describe('Identity', function () {
+        mParticle.getVersion = function () {
+            return '2.x.y';
+        };
         describe('Identity exists', function () {
             var mParticleUser = {
                 getMPID: function () {
@@ -424,25 +430,6 @@ describe('Amplitude forwarder', function () {
                 },
             };
 
-            it('should set userId as MPID on onUserIdentified if forwarder settings has MPID as userIdField', function (done) {
-                mParticle.forwarder.init(
-                    {
-                        userIdentification: 'mpId',
-                        instanceName: 'newInstance',
-                    },
-                    reportService.cb,
-                    true
-                );
-
-                mParticle.forwarder.onUserIdentified(mParticleUser);
-
-                amplitude.instances.newInstance.should.not.have.property(
-                    'userId'
-                );
-
-                done();
-            });
-
             it('should set userId as customerid on onUserIdentified if forwarder settings has customerId as userIdField', function (done) {
                 mParticle.forwarder.init(
                     {
@@ -455,8 +442,9 @@ describe('Amplitude forwarder', function () {
 
                 mParticle.forwarder.onUserIdentified(mParticleUser);
 
-                amplitude.instances.newInstance.should.not.have.property(
-                    'userId'
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    null
                 );
 
                 done();
@@ -474,8 +462,9 @@ describe('Amplitude forwarder', function () {
 
                 mParticle.forwarder.onUserIdentified(mParticleUser);
 
-                amplitude.instances.newInstance.should.not.have.property(
-                    'userId'
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    null
                 );
 
                 done();
@@ -493,8 +482,9 @@ describe('Amplitude forwarder', function () {
 
                 mParticle.forwarder.onUserIdentified(mParticleUser);
 
-                amplitude.instances.newInstance.should.not.have.property(
-                    'userId'
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    null
                 );
 
                 done();
@@ -512,8 +502,9 @@ describe('Amplitude forwarder', function () {
 
                 mParticle.forwarder.onUserIdentified(mParticleUser);
 
-                amplitude.instances.newInstance.should.not.have.property(
-                    'userId'
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    null
                 );
 
                 done();
@@ -531,8 +522,9 @@ describe('Amplitude forwarder', function () {
 
                 mParticle.forwarder.onUserIdentified(mParticleUser);
 
-                amplitude.instances.newInstance.should.not.have.property(
-                    'userId'
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    null
                 );
 
                 done();
@@ -550,8 +542,9 @@ describe('Amplitude forwarder', function () {
 
                 mParticle.forwarder.onUserIdentified(mParticleUser);
 
-                amplitude.instances.newInstance.should.not.have.property(
-                    'userId'
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    null
                 );
 
                 done();
