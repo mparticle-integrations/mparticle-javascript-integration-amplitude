@@ -126,19 +126,20 @@ var constructor = function () {
 
     function setUserIdentity(id, type) {
         if (window.mParticle.getVersion()[0] !== '1') {
-            if (isInitialized) {
-                if (type === window.mParticle.IdentityType.CustomerId) {
-                    getInstance().setUserId(id);
-                } else {
-                    setUserAttribute(getIdentityTypeName(type), id);
-                }
+            return;
+        }
+        if (isInitialized) {
+            if (type === window.mParticle.IdentityType.CustomerId) {
+                getInstance().setUserId(id);
             } else {
-                return (
-                    'Cannot call setUserIdentity on forwarder ' +
-                    name +
-                    ', not initialized'
-                );
+                setUserAttribute(getIdentityTypeName(type), id);
             }
+        } else {
+            return (
+                'Cannot call setUserIdentity on forwarder ' +
+                name +
+                ', not initialized'
+            );
         }
     }
 
