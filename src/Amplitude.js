@@ -30,6 +30,12 @@ var name = 'Amplitude',
 
 var constants = {
     MPID: 'mpId',
+    customerId: 'customerId',
+    email: 'email',
+    other: 'other',
+    other2: 'other2',
+    other3: 'other3',
+    other4: 'other4',
 };
 
 /* eslint-disable */
@@ -119,25 +125,107 @@ var constructor = function () {
     }
 
     function setUserIdentity(id, type) {
-        if (isInitialized) {
-            if (type === window.mParticle.IdentityType.CustomerId) {
-                getInstance().setUserId(id);
+        if (window.mParticle.getVersion()[0] !== '1') {
+            if (isInitialized) {
+                if (type === window.mParticle.IdentityType.CustomerId) {
+                    getInstance().setUserId(id);
+                } else {
+                    setUserAttribute(getIdentityTypeName(type), id);
+                }
             } else {
-                setUserAttribute(getIdentityTypeName(type), id);
+                return (
+                    'Cannot call setUserIdentity on forwarder ' +
+                    name +
+                    ', not initialized'
+                );
             }
-        } else {
-            return (
-                'Cannot call setUserIdentity on forwarder ' +
-                name +
-                ', not initialized'
-            );
         }
     }
 
     function onUserIdentified(user) {
+        var userIdMissing;
         if (isInitialized) {
-            if (forwarderSettings.userIdentification === constants.MPID) {
-                getInstance().setUserId(user.getMPID());
+            var userIdentities = user.getUserIdentities().userIdentities;
+            try {
+                switch (forwarderSettings.userIdentification) {
+                    case constants.MPID:
+                        return getInstance().setUserId(user.getMPID());
+                    case constants.customerId:
+                        if (userIdentities.customerid) {
+                            return getInstance().setUserId(
+                                userIdentities.customerid
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.email:
+                        if (userIdentities.email) {
+                            // Additional check for email to match server
+                            if (
+                                forwarderSettings.includeEmailAsUserProperty ===
+                                'True'
+                            ) {
+                                setUserAttribute('email', userIdentities.email);
+                            }
+                            return getInstance().setUserId(
+                                userIdentities.email
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other:
+                        if (userIdentities.other) {
+                            return getInstance().setUserId(
+                                userIdentities.other
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other2:
+                        if (userIdentities.other2) {
+                            return getInstance().setUserId(
+                                userIdentities.other2
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other3:
+                        if (userIdentities.other3) {
+                            return getInstance().setUserId(
+                                userIdentities.other3
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other4:
+                        if (userIdentities.other4) {
+                            return getInstance().setUserId(
+                                userIdentities.other4
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+
+                    default:
+                        return;
+                }
+                if (userIdMissing) {
+                    console.warn(
+                        'A user identification type of ' +
+                            forwarderSettings.userIdentification +
+                            ' was selected in mParticle dashboard, but was not passed to the identity call. Please check your implementation.'
+                    );
+                }
+            } catch (e) {
+                console.error(
+                    'Error calling onUserIdentified on forwarder ' + name
+                );
             }
         } else {
             return (
