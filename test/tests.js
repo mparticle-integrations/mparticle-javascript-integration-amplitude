@@ -233,7 +233,6 @@ describe('Amplitude forwarder', function () {
             'customerId1',
             IdentityType.CustomerId
         );
-
         amplitude.instances.newInstance.should.have.property(
             'userId',
             'customerId1'
@@ -253,6 +252,20 @@ describe('Amplitude forwarder', function () {
         );
 
         amplitude.instances.newInstance.should.have.property('userId', '123');
+
+        done();
+    });
+
+    it('should set user identities as user attributes for non customerid user identities', function (done) {
+        mParticle.getVersion = function () {
+            return '1.16.3';
+        };
+        mParticle.forwarder.setUserIdentity('other1', IdentityType.Other);
+
+        amplitude.instances.newInstance.props.should.have.property(
+            'Other',
+            'other1'
+        );
 
         done();
     });
@@ -279,6 +292,26 @@ describe('Amplitude forwarder', function () {
                     };
                 },
             };
+
+            it('should not set userId as a user attribute when on v2', function (done) {
+                mParticle.forwarder.init(
+                    {
+                        userIdentification: 'other2',
+                        instanceName: 'newInstance',
+                    },
+                    reportService.cb,
+                    true
+                );
+
+                mParticle.forwarder.onUserIdentified(mParticleUser);
+
+                amplitude.instances.newInstance.should.have.property(
+                    'props',
+                    null
+                );
+
+                done();
+            });
 
             it('should set userId as MPID on onUserIdentified if forwarder settings has MPID as userIdField', function (done) {
                 mParticle.forwarder.init(
