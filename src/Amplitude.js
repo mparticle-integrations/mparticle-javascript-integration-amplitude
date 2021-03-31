@@ -147,6 +147,12 @@ var constructor = function () {
         var userIdMissing;
         if (isInitialized) {
             var userIdentities = user.getUserIdentities().userIdentities;
+
+            // Additional check for email to match server
+            if (forwarderSettings.includeEmailAsUserProperty === 'True') {
+                setUserAttribute('email', userIdentities.email);
+            }
+
             try {
                 switch (forwarderSettings.userIdentification) {
                     case constants.MPID:
@@ -162,13 +168,6 @@ var constructor = function () {
                         break;
                     case constants.email:
                         if (userIdentities.email) {
-                            // Additional check for email to match server
-                            if (
-                                forwarderSettings.includeEmailAsUserProperty ===
-                                'True'
-                            ) {
-                                setUserAttribute('email', userIdentities.email);
-                            }
                             return getInstance().setUserId(
                                 userIdentities.email
                             );
