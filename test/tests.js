@@ -1,5 +1,5 @@
 /* eslint-disable no-undef*/
-describe('Amplitude forwarder', function() {
+describe('Amplitude forwarder', function () {
     var MessageType = {
             SessionStart: 1,
             SessionEnd: 2,
@@ -7,7 +7,7 @@ describe('Amplitude forwarder', function() {
             PageEvent: 4,
             CrashReport: 5,
             OptOut: 6,
-            Commerce: 16
+            Commerce: 16,
         },
         EventType = {
             Unknown: 0,
@@ -20,9 +20,9 @@ describe('Amplitude forwarder', function() {
             Social: 7,
             Other: 8,
             Media: 9,
-            getName: function() {
+            getName: function () {
                 return 'blahblah';
-            }
+            },
         },
         ProductActionType = {
             Unknown: 0,
@@ -35,7 +35,7 @@ describe('Amplitude forwarder', function() {
             Purchase: 7,
             Refund: 8,
             AddToWishlist: 9,
-            RemoveFromWishlist: 10
+            RemoveFromWishlist: 10,
         },
         IdentityType = {
             Other: 0,
@@ -48,37 +48,37 @@ describe('Amplitude forwarder', function() {
             Email: 7,
             Alias: 8,
             FacebookCustomAudienceId: 9,
-            getName: function(type) {
+            getName: function (type) {
                 for (key in IdentityType) {
                     if (IdentityType[key] === type) {
                         return key;
                     }
                 }
-            }
+            },
         },
-        ReportingService = function() {
+        ReportingService = function () {
             var self = this;
 
             this.id = null;
             this.event = null;
 
-            this.cb = function(forwarder, event) {
+            this.cb = function (forwarder, event) {
                 self.id = forwarder.id;
                 self.event = event;
             };
 
-            this.reset = function() {
+            this.reset = function () {
                 self.id = null;
                 self.event = null;
             };
         },
         reportService = new ReportingService();
 
-    before(function() {
+    before(function () {
         mParticle.EventType = EventType;
         mParticle.ProductActionType = ProductActionType;
         mParticle.IdentityType = IdentityType;
-        mParticle.generateHash = function(name) {
+        mParticle.generateHash = function (name) {
             var hash = 0,
                 i = 0,
                 character;
@@ -90,7 +90,10 @@ describe('Amplitude forwarder', function() {
             name = name.toString().toLowerCase();
 
             if (Array.prototype.reduce) {
-                return name.split('').reduce(function(a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+                return name.split('').reduce(function (a, b) {
+                    a = (a << 5) - a + b.charCodeAt(0);
+                    return a & a;
+                }, 0);
             }
 
             if (name.length === 0) {
@@ -99,51 +102,58 @@ describe('Amplitude forwarder', function() {
 
             for (i = 0; i < name.length; i++) {
                 character = name.charCodeAt(i);
-                hash = ((hash << 5) - hash) + character;
+                hash = (hash << 5) - hash + character;
                 hash = hash & hash;
             }
 
             return hash;
         };
         mParticle.Identity = {
-            getCurrentUser: function() {
+            getCurrentUser: function () {
                 return {
-                    getMPID: function() {
+                    getMPID: function () {
                         return '123';
                     },
-                    getUserIdentities: function() {
+                    getUserIdentities: function () {
                         return {
                             userIdentities: {
-                                customerid: '123'
-                            }
+                                customerid: '123',
+                            },
                         };
                     },
-                    getAllUserAttributes: function() {
+                    getAllUserAttributes: function () {
                         return {};
                     },
-                    getConsentState: function() {
+                    getConsentState: function () {
                         return {};
-                    }
+                    },
                 };
-            }
+            },
         };
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
         window.amplitude.reset();
-        mParticle.forwarder.init({
-            saveEvents: 'True',
-            savedMaxCount: 20,
-            uploadBatchSize: 5,
-            includeUtm: 'False',
-            includeReferrer: 'True',
-            instanceName: 'newInstance'
-        }, reportService.cb, true);
+        mParticle.forwarder.init(
+            {
+                saveEvents: 'True',
+                savedMaxCount: 20,
+                uploadBatchSize: 5,
+                includeUtm: 'False',
+                includeReferrer: 'True',
+                instanceName: 'newInstance',
+            },
+            reportService.cb,
+            true
+        );
 
-        mParticle.init('faketoken', {requestConfig: false, workspaceToken: 'fakeToken'});
+        mParticle.init('faketoken', {
+            requestConfig: false,
+            workspaceToken: 'fakeToken',
+        });
     });
 
-    it('should have created an instance with name \'newInstance\'', function(done) {
+    it('should have created an instance with name "newInstance"', function (done) {
         var instanceNames = Object.keys(amplitude.instances);
 
         instanceNames.should.have.length(1);
@@ -152,14 +162,18 @@ describe('Amplitude forwarder', function() {
         done();
     });
 
-    it('creates an additional instance with name \'default\' when no instanceName is passed', function(done) {
-        mParticle.forwarder.init({
-            saveEvents: 'True',
-            savedMaxCount: 20,
-            uploadBatchSize: 5,
-            includeUtm: 'False',
-            includeReferrer: 'True'
-        }, reportService.cb, true);
+    it('creates an additional instance with name "default" when no instanceName is passed', function (done) {
+        mParticle.forwarder.init(
+            {
+                saveEvents: 'True',
+                savedMaxCount: 20,
+                uploadBatchSize: 5,
+                includeUtm: 'False',
+                includeReferrer: 'True',
+            },
+            reportService.cb,
+            true
+        );
 
         var instanceNames = Object.keys(amplitude.instances);
 
@@ -170,23 +184,29 @@ describe('Amplitude forwarder', function() {
         done();
     });
 
-    it('should log page view', function(done) {
+    it('should log page view', function (done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.PageView,
             EventName: 'Test Page View',
             EventAttributes: {
-                Path: 'Test'
-            }
+                Path: 'Test',
+            },
         });
 
-        amplitude.instances.newInstance.should.have.property('eventName', 'Viewed Test Page View');
+        amplitude.instances.newInstance.should.have.property(
+            'eventName',
+            'Viewed Test Page View'
+        );
         amplitude.instances.newInstance.should.have.property('attrs');
-        amplitude.instances.newInstance.attrs.should.have.property('Path', 'Test');
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Path',
+            'Test'
+        );
 
         done();
     });
 
-    it('should log transaction', function(done) {
+    it('should log transaction', function (done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.PageEvent,
             EventCategory: EventType.Transaction,
@@ -194,8 +214,8 @@ describe('Amplitude forwarder', function() {
                 $MethodName: 'LogEcommerceTransaction',
                 RevenueAmount: 400,
                 ProductQuantity: 1,
-                ProductSKU: '12345'
-            }
+                ProductSKU: '12345',
+            },
         });
 
         amplitude.instances.newInstance.should.have.property('amount', 400);
@@ -205,33 +225,49 @@ describe('Amplitude forwarder', function() {
         done();
     });
 
-    it('should set customer id user identity', function(done) {
-        mParticle.forwarder.setUserIdentity('customerId1', IdentityType.CustomerId);
+    it('should set customer id user identity', function (done) {
+        mParticle.forwarder.setUserIdentity(
+            'customerId1',
+            IdentityType.CustomerId
+        );
 
-        amplitude.instances.newInstance.should.have.property('userId', 'customerId1');
+        amplitude.instances.newInstance.should.have.property(
+            'userId',
+            'customerId1'
+        );
 
         done();
     });
 
-    it('should set customerid as mpid when selected in settings', function(done) {
-        mParticle.forwarder.init({
-            userIdentification: 'mpId',
-            instanceName: 'newInstance'
-        }, reportService.cb, true);
+    it('should set customerid as mpid when selected in settings', function (done) {
+        mParticle.forwarder.init(
+            {
+                userIdentification: 'mpId',
+                instanceName: 'newInstance',
+            },
+            reportService.cb,
+            true
+        );
 
         amplitude.instances.newInstance.should.have.property('userId', '123');
 
         done();
     });
 
-    it('should set userId as MPID on onUserIdentified if forwarder settings has MPID as userIdField', function(done) {
+    it('should set userId as MPID on onUserIdentified if forwarder settings has MPID as userIdField', function (done) {
         var mParticleUser = {
-            getMPID: function() {return 'abc';}
+            getMPID: function () {
+                return 'abc';
+            },
         };
-        mParticle.forwarder.init({
-            userIdentification: 'mpId',
-            instanceName: 'newInstance'
-        }, reportService.cb, true);
+        mParticle.forwarder.init(
+            {
+                userIdentification: 'mpId',
+                instanceName: 'newInstance',
+            },
+            reportService.cb,
+            true
+        );
 
         mParticle.forwarder.onUserIdentified(mParticleUser);
 
@@ -240,37 +276,58 @@ describe('Amplitude forwarder', function() {
         done();
     });
 
-    it('should set user attribute', function(done) {
+    it('should set user attribute', function (done) {
         mParticle.forwarder.setUserAttribute('gender', 'male');
 
         amplitude.instances.newInstance.should.have.property('props');
-        amplitude.instances.newInstance.props.should.have.property('gender', 'male');
+        amplitude.instances.newInstance.props.should.have.property(
+            'gender',
+            'male'
+        );
 
         done();
     });
 
-    it('should set opt out', function(done) {
+    it('should set opt out', function (done) {
         mParticle.forwarder.setOptOut(true);
 
-        amplitude.instances.newInstance.should.have.property('isOptingOut', true);
+        amplitude.instances.newInstance.should.have.property(
+            'isOptingOut',
+            true
+        );
 
         done();
     });
 
-    it('should parse forwarder settings', function(done) {
-        amplitude.instances.newInstance.settings.should.have.property('saveEvents', true);
-        amplitude.instances.newInstance.settings.should.have.property('savedMaxCount', 20);
-        amplitude.instances.newInstance.settings.should.have.property('uploadBatchSize', 5);
-        amplitude.instances.newInstance.settings.should.have.property('includeUtm', false);
-        amplitude.instances.newInstance.settings.should.have.property('includeReferrer', true);
+    it('should parse forwarder settings', function (done) {
+        amplitude.instances.newInstance.settings.should.have.property(
+            'saveEvents',
+            true
+        );
+        amplitude.instances.newInstance.settings.should.have.property(
+            'savedMaxCount',
+            20
+        );
+        amplitude.instances.newInstance.settings.should.have.property(
+            'uploadBatchSize',
+            5
+        );
+        amplitude.instances.newInstance.settings.should.have.property(
+            'includeUtm',
+            false
+        );
+        amplitude.instances.newInstance.settings.should.have.property(
+            'includeReferrer',
+            true
+        );
 
         done();
     });
 
-    it('should log purchase commerce events', function(done) {
+    it('should log purchase commerce events', function (done) {
         mParticle.forwarder.process({
             EventAttributes: {
-                CustomEventAttribute : 'SomeEventAttributeValue'
+                CustomEventAttribute: 'SomeEventAttributeValue',
             },
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -286,38 +343,81 @@ describe('Amplitude forwarder', function() {
                         Sku: '12345',
                         Price: 400,
                         Quantity: 1,
-                        Attributes: { CustomProductAttribute : 'Cool' }
-                    }
-                ]
-            }
+                        Attributes: { CustomProductAttribute: 'Cool' },
+                    },
+                ],
+            },
         });
 
         // Transaction Level Attribute
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Transaction Id', 123);
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Coupon Code', 'WinnerChickenDinner');
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Affiliation', 'my-affiliation');
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Shipping Amount', 10);
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Tax Amount', 40);
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.not.have.property('Total Amount');
-        amplitude.instances.newInstance.revenueObj.should.have.property('price', 234);
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Transaction Id',
+            123
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Coupon Code',
+            'WinnerChickenDinner'
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Affiliation',
+            'my-affiliation'
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Shipping Amount',
+            10
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Tax Amount',
+            40
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'CustomEventAttribute',
+            'SomeEventAttributeValue'
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.not.have.property(
+            'Total Amount'
+        );
+        amplitude.instances.newInstance.revenueObj.should.have.property(
+            'price',
+            234
+        );
 
         // Product level attributes
-        amplitude.instances.newInstance.attrs.should.have.property('Id', '12345');
-        amplitude.instances.newInstance.attrs.should.have.property('Item Price', 400);
-        amplitude.instances.newInstance.attrs.should.have.property('Quantity', 1);
-        amplitude.instances.newInstance.attrs.should.have.property('Transaction Id', 123);
-        amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
-        amplitude.instances.newInstance.attrs.should.have.property('CustomProductAttribute', 'Cool');
-        amplitude.instances.newInstance.attrs.should.not.property('Total Product Amount');
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Id',
+            '12345'
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Item Price',
+            400
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Quantity',
+            1
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Transaction Id',
+            123
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'CustomEventAttribute',
+            'SomeEventAttributeValue'
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'CustomProductAttribute',
+            'Cool'
+        );
+        amplitude.instances.newInstance.attrs.should.not.property(
+            'Total Product Amount'
+        );
 
         done();
     });
 
-    it('should log refund commerce events', function(done) {
+    it('should log refund commerce events', function (done) {
         mParticle.forwarder.process({
             EventAttributes: {
-                CustomEventAttribute : 'SomeEventAttributeValue'
+                CustomEventAttribute: 'SomeEventAttributeValue',
             },
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -333,39 +433,81 @@ describe('Amplitude forwarder', function() {
                         Sku: '12345',
                         Price: 400,
                         Quantity: 1,
-                        Attributes: { CustomProductAttribute : 'Cool' }
-                    }
-                ]
-            }
+                        Attributes: { CustomProductAttribute: 'Cool' },
+                    },
+                ],
+            },
         });
 
         // Transaction Level Attribute
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Transaction Id', 123);
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Coupon Code', 'WinnerChickenDinner');
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Affiliation', 'my-affiliation');
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Shipping Amount', 10);
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Tax Amount', 40);
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.not.have.property('Total Amount');
-        amplitude.instances.newInstance.revenueObj.should.have.property('price', -234);
-
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Transaction Id',
+            123
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Coupon Code',
+            'WinnerChickenDinner'
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Affiliation',
+            'my-affiliation'
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Shipping Amount',
+            10
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'Tax Amount',
+            40
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+            'CustomEventAttribute',
+            'SomeEventAttributeValue'
+        );
+        amplitude.instances.newInstance.revenueObj.eventAttributes.should.not.have.property(
+            'Total Amount'
+        );
+        amplitude.instances.newInstance.revenueObj.should.have.property(
+            'price',
+            -234
+        );
 
         // Product level attributes
-        amplitude.instances.newInstance.attrs.should.have.property('Id', '12345');
-        amplitude.instances.newInstance.attrs.should.have.property('Item Price', 400);
-        amplitude.instances.newInstance.attrs.should.have.property('Quantity', 1);
-        amplitude.instances.newInstance.attrs.should.have.property('Transaction Id', 123);
-        amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
-        amplitude.instances.newInstance.attrs.should.have.property('CustomProductAttribute', 'Cool');
-        amplitude.instances.newInstance.attrs.should.not.property('Total Product Amount');
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Id',
+            '12345'
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Item Price',
+            400
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Quantity',
+            1
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Transaction Id',
+            123
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'CustomEventAttribute',
+            'SomeEventAttributeValue'
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'CustomProductAttribute',
+            'Cool'
+        );
+        amplitude.instances.newInstance.attrs.should.not.property(
+            'Total Product Amount'
+        );
 
         done();
     });
 
-    it('should log AddToCart commerce events', function(done) {
+    it('should log AddToCart commerce events', function (done) {
         mParticle.forwarder.process({
             EventAttributes: {
-                CustomEventAttribute : 'SomeEventAttributeValue'
+                CustomEventAttribute: 'SomeEventAttributeValue',
             },
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -381,31 +523,51 @@ describe('Amplitude forwarder', function() {
                         Sku: '12345',
                         Price: 400,
                         Quantity: 1,
-                        Attributes: { CustomProductAttribute : 'Cool' }
-                    }
-                ]
-            }
+                        Attributes: { CustomProductAttribute: 'Cool' },
+                    },
+                ],
+            },
         });
 
         // No revenue call is expected
         amplitude.instances.newInstance.should.not.have.property('revenueObj');
 
         // Product level attributes
-        amplitude.instances.newInstance.attrs.should.have.property('Id', '12345');
-        amplitude.instances.newInstance.attrs.should.have.property('Item Price', 400);
-        amplitude.instances.newInstance.attrs.should.have.property('Quantity', 1);
-        amplitude.instances.newInstance.attrs.should.have.property('Transaction Id', 123);
-        amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
-        amplitude.instances.newInstance.attrs.should.have.property('CustomProductAttribute', 'Cool');
-        amplitude.instances.newInstance.attrs.should.not.property('Total Product Amount');
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Id',
+            '12345'
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Item Price',
+            400
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Quantity',
+            1
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Transaction Id',
+            123
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'CustomEventAttribute',
+            'SomeEventAttributeValue'
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'CustomProductAttribute',
+            'Cool'
+        );
+        amplitude.instances.newInstance.attrs.should.not.property(
+            'Total Product Amount'
+        );
 
         done();
     });
 
-    it('should log RemoveFromCart commerce events', function(done) {
+    it('should log RemoveFromCart commerce events', function (done) {
         mParticle.forwarder.process({
             EventAttributes: {
-                CustomEventAttribute : 'SomeEventAttributeValue'
+                CustomEventAttribute: 'SomeEventAttributeValue',
             },
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -421,28 +583,48 @@ describe('Amplitude forwarder', function() {
                         Sku: '12345',
                         Price: 400,
                         Quantity: 1,
-                        Attributes: { CustomProductAttribute : 'Cool' }
-                    }
-                ]
-            }
+                        Attributes: { CustomProductAttribute: 'Cool' },
+                    },
+                ],
+            },
         });
 
         // No revenue call is expected
         amplitude.instances.newInstance.should.not.have.property('revenueObj');
 
         // Product level attributes
-        amplitude.instances.newInstance.attrs.should.have.property('Id', '12345');
-        amplitude.instances.newInstance.attrs.should.have.property('Item Price', 400);
-        amplitude.instances.newInstance.attrs.should.have.property('Quantity', 1);
-        amplitude.instances.newInstance.attrs.should.have.property('Transaction Id', 123);
-        amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
-        amplitude.instances.newInstance.attrs.should.have.property('CustomProductAttribute', 'Cool');
-        amplitude.instances.newInstance.attrs.should.not.property('Total Product Amount');
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Id',
+            '12345'
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Item Price',
+            400
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Quantity',
+            1
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'Transaction Id',
+            123
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'CustomEventAttribute',
+            'SomeEventAttributeValue'
+        );
+        amplitude.instances.newInstance.attrs.should.have.property(
+            'CustomProductAttribute',
+            'Cool'
+        );
+        amplitude.instances.newInstance.attrs.should.not.property(
+            'Total Product Amount'
+        );
 
         done();
     });
 
-    it('should not log non-compatible commerce events', function(done) {
+    it('should not log non-compatible commerce events', function (done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
             ProductAction: {
@@ -451,10 +633,10 @@ describe('Amplitude forwarder', function() {
                     {
                         Sku: '12345',
                         Price: 400,
-                        Quantity: 1
-                    }
-                ]
-            }
+                        Quantity: 1,
+                    },
+                ],
+            },
         });
 
         amplitude.instances.newInstance.should.have.property('amount', null);
@@ -462,18 +644,25 @@ describe('Amplitude forwarder', function() {
         done();
     });
 
-    describe('Custom Attributes with Arrays when sendEventAttributesAsObjects is true', function() {
+    describe('Custom Attributes with Arrays when sendEventAttributesAsObjects is true', function () {
         beforeEach(function () {
             window.amplitude.reset();
-            mParticle.forwarder.init({
-                sendEventAttributesAsObjects: 'True',
-                instanceName: 'newInstance'
-            }, reportService.cb, true);
+            mParticle.forwarder.init(
+                {
+                    sendEventAttributesAsObjects: 'True',
+                    instanceName: 'newInstance',
+                },
+                reportService.cb,
+                true
+            );
 
-            mParticle.init('faketoken', { requestConfig: false, workspaceToken: 'fakeToken' });
+            mParticle.init('faketoken', {
+                requestConfig: false,
+                workspaceToken: 'fakeToken',
+            });
         });
 
-        it('should turn a stringified array into an array as part of custom attributes when logging a page view', function() {
+        it('should turn a stringified array into an array as part of custom attributes when logging a page view', function () {
             mParticle.forwarder.process({
                 EventDataType: MessageType.PageView,
                 EventName: 'Test Page View',
@@ -481,17 +670,29 @@ describe('Amplitude forwarder', function() {
                     Path: 'Test',
                     Array: JSON.stringify(['abc', 'def', 'ghi']),
                     Obj: JSON.stringify({ foo: 'bar' }),
-                }
+                },
             });
-    
-            amplitude.instances.newInstance.should.have.property('eventName', 'Viewed Test Page View');
+
+            amplitude.instances.newInstance.should.have.property(
+                'eventName',
+                'Viewed Test Page View'
+            );
             amplitude.instances.newInstance.should.have.property('attrs');
-            amplitude.instances.newInstance.attrs.should.have.property('Path', 'Test');
-            amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi']);
-            amplitude.instances.newInstance.attrs.Obj.should.have.property('foo', 'bar');
+            amplitude.instances.newInstance.attrs.should.have.property(
+                'Path',
+                'Test'
+            );
+            amplitude.instances.newInstance.attrs.should.have.property(
+                'Array',
+                ['abc', 'def', 'ghi']
+            );
+            amplitude.instances.newInstance.attrs.Obj.should.have.property(
+                'foo',
+                'bar'
+            );
         });
 
-        it('should turn a stringified array into an array as part of custom attributes when logging a purchase commerce events', function(done) {
+        it('should turn a stringified array into an array as part of custom attributes when logging a purchase commerce events', function (done) {
             mParticle.forwarder.process({
                 EventAttributes: {
                     CustomEventAttribute: 'SomeEventAttributeValue',
@@ -512,65 +713,97 @@ describe('Amplitude forwarder', function() {
                             Sku: '12345',
                             Price: 400,
                             Quantity: 1,
-                            Attributes: { CustomProductAttribute : 'Cool' }
-                        }
-                    ]
-                }
+                            Attributes: { CustomProductAttribute: 'Cool' },
+                        },
+                    ],
+                },
             });
-    
-            // Transaction Level Attribute
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property('Array', ['abc', 'def', 'ghi']);
-            amplitude.instances.newInstance.revenueObj.eventAttributes.Obj.should.have.property('foo', 'bar');
-    
-            // Product level attributes
-            amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
-            amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi']);
-            amplitude.instances.newInstance.attrs.Obj.should.have.property('foo', 'bar');
 
-    
+            // Transaction Level Attribute
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+                'CustomEventAttribute',
+                'SomeEventAttributeValue'
+            );
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+                'Array',
+                ['abc', 'def', 'ghi']
+            );
+            amplitude.instances.newInstance.revenueObj.eventAttributes.Obj.should.have.property(
+                'foo',
+                'bar'
+            );
+
+            // Product level attributes
+            amplitude.instances.newInstance.attrs.should.have.property(
+                'CustomEventAttribute',
+                'SomeEventAttributeValue'
+            );
+            amplitude.instances.newInstance.attrs.should.have.property(
+                'Array',
+                ['abc', 'def', 'ghi']
+            );
+            amplitude.instances.newInstance.attrs.Obj.should.have.property(
+                'foo',
+                'bar'
+            );
+
             done();
         });
 
-        it('should turn a stringified array into an array as part of custom attributes when logging a regular page event', function(done) {
+        it('should turn a stringified array into an array as part of custom attributes when logging a regular page event', function (done) {
             mParticle.forwarder.process({
                 EventDataType: MessageType.PageEvent,
                 EventAttributes: {
-                    CustomEventAttribute : 'SomeEventAttributeValue',
+                    CustomEventAttribute: 'SomeEventAttributeValue',
                     Array: JSON.stringify(['abc', 'def', 'ghi']),
                     Obj: JSON.stringify({ foo: 'bar' }),
-                }
+                },
             });
 
-            amplitude.instances.newInstance.attrs.should.have.property('CustomEventAttribute', 'SomeEventAttributeValue');
-            amplitude.instances.newInstance.attrs.should.have.property('Array', ['abc', 'def', 'ghi']);
-            amplitude.instances.newInstance.attrs.Obj.should.have.property('foo', 'bar');
-
+            amplitude.instances.newInstance.attrs.should.have.property(
+                'CustomEventAttribute',
+                'SomeEventAttributeValue'
+            );
+            amplitude.instances.newInstance.attrs.should.have.property(
+                'Array',
+                ['abc', 'def', 'ghi']
+            );
+            amplitude.instances.newInstance.attrs.Obj.should.have.property(
+                'foo',
+                'bar'
+            );
 
             done();
         });
     });
 });
 
-describe('Default amplitude settings', function() {
-    it('sets default amplitude settings', function() {
+describe('Default amplitude settings', function () {
+    it('sets default amplitude settings', function () {
         var platform = 'International Space Station';
         window.AmplitudeInitSettings = {
-            platform: platform
+            platform: platform,
         };
         window.amplitude.reset();
-        mParticle.forwarder.init({
-            saveEvents: 'True',
-            savedMaxCount: 20,
-            uploadBatchSize: 5,
-            includeUtm: 'False',
-            includeReferrer: 'True',
-            instanceName: 'newInstance'
-        }, function(forwarder, event) {
-            self.id = forwarder.id;
-            self.event = event;
-        }, true);
+        mParticle.forwarder.init(
+            {
+                saveEvents: 'True',
+                savedMaxCount: 20,
+                uploadBatchSize: 5,
+                includeUtm: 'False',
+                includeReferrer: 'True',
+                instanceName: 'newInstance',
+            },
+            function (forwarder, event) {
+                self.id = forwarder.id;
+                self.event = event;
+            },
+            true
+        );
 
-        amplitude.instances.newInstance.settings.should.have.property('platform', platform);
+        amplitude.instances.newInstance.settings.should.have.property(
+            'platform',
+            platform
+        );
     });
 });
