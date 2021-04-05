@@ -157,6 +157,7 @@ var constructor = function () {
                 switch (forwarderSettings.userIdentification) {
                     case constants.MPID:
                         return getInstance().setUserId(user.getMPID());
+                    // server returns `customerId` whereas key on userIdentities object is `customerid`
                     case constants.customerId:
                         if (userIdentities.customerid) {
                             return getInstance().setUserId(
