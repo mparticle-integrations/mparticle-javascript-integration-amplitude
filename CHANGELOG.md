@@ -1,7 +1,6 @@
 ## Releases
 
 --
-
 #### 2.0.6 - 2021-04-06
 
 -   feat: Add includeEmailAsUserProperty and no longer set userIdentities as user properties to align with server
