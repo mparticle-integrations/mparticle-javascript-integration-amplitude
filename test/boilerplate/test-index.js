@@ -55,7 +55,7 @@ var amplitudeClient = function (instanceName) {
 
   this.init = function (key, arg1, settings) {
     self.settings = settings;
-    self.events = [];;
+    self.events = [];
     self.attrs = null;
     self.amount = null;
     self.quantity = null;

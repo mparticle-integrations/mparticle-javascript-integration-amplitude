@@ -335,15 +335,15 @@ var constructor = function () {
     }
 
     function logCommerce(event) {
-        var expandedEvents;
         if (event.ProductAction) {
-            var isRefund =
-                event.ProductAction.ProductActionType ===
-                mParticle.ProductActionType.Refund;
-            var logRevenue =
-                event.ProductAction.ProductActionType ===
-                    mParticle.ProductActionType.Purchase || isRefund;
-            expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
+            var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event),
+                isRefund =
+                    event.ProductAction.ProductActionType ===
+                    mParticle.ProductActionType.Refund,
+                isPurchase =
+                    event.ProductAction.ProductActionType ===
+                    mParticle.ProductActionType.Purchase,
+                logRevenue = isRefund || isPurchase;
             expandedEvents.forEach(function (expandedEvt) {
                 // Exclude Totals from the attributes as we log it in the revenue call
                 var updatedAttributes = {};
@@ -378,9 +378,12 @@ var constructor = function () {
 
             return true;
         }
+
         if (
             event.EventCategory ===
-            mParticle.CommerceEventType.ProductImpression
+                mParticle.CommerceEventType.ProductImpression ||
+            event.EventCategory === mParticle.CommerceEventType.PromotionView ||
+            event.EventCategory === mParticle.CommerceEventType.PromotionClick
         ) {
             expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
             expandedEvents.forEach(function (expandedEvt) {

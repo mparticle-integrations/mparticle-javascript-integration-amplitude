@@ -24,6 +24,11 @@ describe('Amplitude forwarder', function () {
             ProductRemoveFromWishlist: 21,
             ProductImpression: 22,
         },
+        PromotionActionType = {
+            Unknown: 0,
+            PromotionView: 1,
+            PromotionClick: 2,
+        },
         EventType = {
             Unknown: 0,
             Navigation: 1,
@@ -380,6 +385,75 @@ describe('Amplitude forwarder', function () {
         amplitude.instances.newInstance.events[1].attrs.should.have.property(
             'prodMetric1',
             'metric1'
+        );
+
+        done();
+    });
+
+    it('should log promotion clicks as events', function (done) {
+        mParticle.forwarder.process({
+            EventDataType: MessageType.Commerce,
+            EventCategory: CommerceEventType.PromotionClick,
+            PromotionAction: PromotionActionType.PromotionClick,
+            PromotionList: [
+                {
+                    Id: 'my_promo_1',
+                    Creative: 'sale_banner_1',
+                    Name: 'App-wide 50% off sale',
+                },
+            ],
+        });
+        console.log(amplitude.instances.newInstance);
+        amplitude.instances.newInstance.events[0].should.property(
+            'eventName',
+            'eCommerce - click - Item'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Id',
+            'my_promo_1'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Creative',
+            'sale_banner_1'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Name',
+            'App-wide 50% off sale'
+        );
+
+        done();
+    });
+
+    it('should log promotion views as events', function (done) {
+        mParticle.forwarder.process({
+            EventDataType: MessageType.Commerce,
+            EventCategory: CommerceEventType.PromotionView,
+            PromotionAction: PromotionActionType.PromotionView,
+            PromotionList: [
+                {
+                    Id: 'my_promo_1',
+                    Creative: 'sale_banner_1',
+                    Name: 'App-wide 50% off sale',
+                },
+            ],
+        });
+        console.log(amplitude.instances.newInstance.events);
+
+        amplitude.instances.newInstance.events[0].should.property(
+            'eventName',
+            'eCommerce - view - Item'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Id',
+            'my_promo_1'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Creative',
+            'sale_banner_1'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Name',
+            'App-wide 50% off sale'
         );
 
         done();
