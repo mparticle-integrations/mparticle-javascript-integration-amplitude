@@ -246,6 +246,7 @@ describe('Amplitude forwarder', function () {
     });
 
     it('should log product impressions as events', function (done) {
+        debugger;
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
             EventCategory: CommerceEventType.ProductImpression,
