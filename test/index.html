@@ -67,7 +67,6 @@
 
             this.init = function(key, arg1, settings) {
                 self.settings = settings;
-                self.eventName = null;
                 self.attrs = null;
                 self.amount = null;
                 self.quantity = null;
@@ -75,6 +74,7 @@
                 self.props = null;
                 self.isOptingOut = null;
                 self.userId = null;
+                self.events = [];
             };
 
             this.logRevenue = function (amount, quantity, sku) {
@@ -88,8 +88,10 @@
             }
 
             this.logEvent = function (name, attrs) {
-                self.eventName = name;
-                self.attrs = attrs;
+                self.events.push({
+                    eventName: name,
+                    attrs: attrs
+                });
             };
 
             this.setOptOut = function (isOptingOut) {

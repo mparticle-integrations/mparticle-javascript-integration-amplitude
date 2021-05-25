@@ -335,6 +335,7 @@ var constructor = function () {
     }
 
     function logCommerce(event) {
+        var expandedEvents;
         if (event.ProductAction) {
             var isRefund =
                 event.ProductAction.ProductActionType ===
@@ -342,7 +343,7 @@ var constructor = function () {
             var logRevenue =
                 event.ProductAction.ProductActionType ===
                     mParticle.ProductActionType.Purchase || isRefund;
-            var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
+            expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
             expandedEvents.forEach(function (expandedEvt) {
                 // Exclude Totals from the attributes as we log it in the revenue call
                 var updatedAttributes = {};
@@ -375,6 +376,33 @@ var constructor = function () {
                 }
             });
 
+            return true;
+        }
+        if (
+            event.EventCategory ===
+            mParticle.CommerceEventType.ProductImpression
+        ) {
+            expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
+            expandedEvents.forEach(function (expandedEvt) {
+                // Exclude Totals from the attributes as we log it in the revenue call
+                var updatedAttributes = {};
+                for (var key in expandedEvt.EventAttributes) {
+                    if (
+                        key !== 'Total Amount' &&
+                        key !== 'Total Product Amount'
+                    ) {
+                        updatedAttributes[key] =
+                            expandedEvt.EventAttributes[key];
+                    }
+                }
+
+                updatedAttributes = convertJsonAttrs(updatedAttributes);
+
+                getInstance().logEvent(
+                    expandedEvt.EventName,
+                    updatedAttributes
+                );
+            });
             return true;
         }
 
