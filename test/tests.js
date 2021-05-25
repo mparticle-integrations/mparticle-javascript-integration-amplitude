@@ -394,16 +394,17 @@ describe('Amplitude forwarder', function () {
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
             EventCategory: CommerceEventType.PromotionClick,
-            PromotionAction: PromotionActionType.PromotionClick,
-            PromotionList: [
-                {
-                    Id: 'my_promo_1',
-                    Creative: 'sale_banner_1',
-                    Name: 'App-wide 50% off sale',
-                },
-            ],
+            PromotionAction: {
+                PromotionActionType: PromotionActionType.PromotionClick,
+                PromotionList: [
+                    {
+                        Id: 'my_promo_1',
+                        Creative: 'sale_banner_1',
+                        Name: 'App-wide 50% off sale',
+                    },
+                ],
+            },
         });
-        console.log(amplitude.instances.newInstance);
         amplitude.instances.newInstance.events[0].should.property(
             'eventName',
             'eCommerce - click - Item'
@@ -428,14 +429,16 @@ describe('Amplitude forwarder', function () {
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
             EventCategory: CommerceEventType.PromotionView,
-            PromotionAction: PromotionActionType.PromotionView,
-            PromotionList: [
-                {
-                    Id: 'my_promo_1',
-                    Creative: 'sale_banner_1',
-                    Name: 'App-wide 50% off sale',
-                },
-            ],
+            PromotionAction: {
+                PromotionActionType: PromotionActionType.PromotionView,
+                PromotionList: [
+                    {
+                        Id: 'my_promo_1',
+                        Creative: 'sale_banner_1',
+                        Name: 'App-wide 50% off sale',
+                    },
+                ],
+            },
         });
         console.log(amplitude.instances.newInstance.events);
 
