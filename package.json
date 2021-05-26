@@ -1,6 +1,6 @@
 {
   "name": "@mparticle/web-amplitude-kit",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "author": "mParticle Developers <developers@mparticle.com> (https://www.mparticle.com)",
   "description": "mParticle integration sdk for Amplitude",
   "main": "dist/Amplitude.common.js",

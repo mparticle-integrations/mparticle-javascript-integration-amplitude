@@ -1,6 +1,10 @@
 ## Releases
 
 --
+#### 2.0.7 - 2021-05-26
+
+-   fix: Map impression and promotion events to align with server
+
 #### 2.0.6 - 2021-04-06
 
 -   feat: Add includeEmailAsUserProperty and no longer set userIdentities as user properties to align with server
