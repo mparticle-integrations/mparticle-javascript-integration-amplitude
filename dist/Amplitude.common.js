@@ -347,29 +347,33 @@ var constructor = function () {
         );
     }
 
+    function createEcommerceAttributes(attributes) {
+        var updatedAttributes = {};
+        for (var key in attributes) {
+            if (key !== 'Total Amount' && key !== 'Total Product Amount') {
+                updatedAttributes[key] = attributes[key];
+            }
+        }
+
+        return convertJsonAttrs(updatedAttributes);
+    }
+
     function logCommerce(event) {
+        var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
         if (event.ProductAction) {
-            var isRefund =
+            var isRefund, isPurchase, logRevenue;
+            isRefund =
                 event.ProductAction.ProductActionType ===
                 mParticle.ProductActionType.Refund;
-            var logRevenue =
+            isPurchase =
                 event.ProductAction.ProductActionType ===
-                    mParticle.ProductActionType.Purchase || isRefund;
-            var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
+                mParticle.ProductActionType.Purchase;
+            logRevenue = isRefund || isPurchase;
             expandedEvents.forEach(function (expandedEvt) {
                 // Exclude Totals from the attributes as we log it in the revenue call
-                var updatedAttributes = {};
-                for (var key in expandedEvt.EventAttributes) {
-                    if (
-                        key !== 'Total Amount' &&
-                        key !== 'Total Product Amount'
-                    ) {
-                        updatedAttributes[key] =
-                            expandedEvt.EventAttributes[key];
-                    }
-                }
-
-                updatedAttributes = convertJsonAttrs(updatedAttributes);
+                var updatedAttributes = createEcommerceAttributes(
+                    expandedEvt.EventAttributes
+                );
 
                 // Purchase and Refund events generate an additional 'Total' event
                 if (logRevenue && expandedEvt.EventName.indexOf('Total') > -1) {
@@ -388,6 +392,26 @@ var constructor = function () {
                 }
             });
 
+            return true;
+        }
+
+        if (
+            event.EventCategory ===
+                mParticle.CommerceEventType.ProductImpression ||
+            event.EventCategory === mParticle.CommerceEventType.PromotionView ||
+            event.EventCategory === mParticle.CommerceEventType.PromotionClick
+        ) {
+            expandedEvents.forEach(function (expandedEvt) {
+                // Exclude Totals from the attributes as we log it in the revenue call
+                var updatedAttributes = createEcommerceAttributes(
+                    expandedEvt.EventAttributes
+                );
+
+                getInstance().logEvent(
+                    expandedEvt.EventName,
+                    updatedAttributes
+                );
+            });
             return true;
         }
 
