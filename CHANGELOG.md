@@ -1,6 +1,10 @@
 ## Releases
 
 --
+#### 2.0.8 - 2021-05-26
+
+-   Generate bundle that was not included in 2.0.7 release 
+
 #### 2.0.7 - 2021-05-26
 
 -   fix: Map impression and promotion events to align with server
