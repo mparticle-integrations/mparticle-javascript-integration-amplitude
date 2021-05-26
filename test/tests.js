@@ -9,6 +9,26 @@ describe('Amplitude forwarder', function () {
             OptOut: 6,
             Commerce: 16,
         },
+        CommerceEventType = {
+            ProductAddToCart: 10,
+            ProductRemoveFromCart: 11,
+            ProductCheckout: 12,
+            ProductCheckoutOption: 13,
+            ProductClick: 14,
+            ProductViewDetail: 15,
+            ProductPurchase: 16,
+            ProductRefund: 17,
+            PromotionView: 18,
+            PromotionClick: 19,
+            ProductAddToWishlist: 20,
+            ProductRemoveFromWishlist: 21,
+            ProductImpression: 22,
+        },
+        PromotionActionType = {
+            Unknown: 0,
+            PromotionView: 1,
+            PromotionClick: 2,
+        },
         EventType = {
             Unknown: 0,
             Navigation: 1,
@@ -193,12 +213,12 @@ describe('Amplitude forwarder', function () {
             },
         });
 
-        amplitude.instances.newInstance.should.have.property(
+        amplitude.instances.newInstance.events[0].should.have.property(
             'eventName',
             'Viewed Test Page View'
         );
-        amplitude.instances.newInstance.should.have.property('attrs');
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].should.have.property('attrs');
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Path',
             'Test'
         );
@@ -221,6 +241,224 @@ describe('Amplitude forwarder', function () {
         amplitude.instances.newInstance.should.have.property('amount', 400);
         amplitude.instances.newInstance.should.have.property('quantity', 1);
         amplitude.instances.newInstance.should.have.property('sku', '12345');
+
+        done();
+    });
+
+    it('should log product impressions as events', function (done) {
+        debugger;
+        mParticle.forwarder.process({
+            EventDataType: MessageType.Commerce,
+            EventCategory: CommerceEventType.ProductImpression,
+            ProductImpressions: [
+                {
+                    ProductImpressionList: '"Suggested Products List"',
+                    ProductList: [
+                        {
+                            Attributes: {
+                                journeyType: 'testjourneytype1',
+                                eventMetric1: 'metric2',
+                            },
+                            Brand: 'brand',
+                            Category: 'category',
+                            CouponCode: 'coupon',
+                            Name: 'iphone',
+                            Position: 1,
+                            Price: 999,
+                            Quantity: 1,
+                            Sku: 'iphoneSKU',
+                            TotalAmount: 999,
+                            Variant: 'variant',
+                        },
+                        {
+                            Attributes: {
+                                attr1: 'hit-att2-type',
+                                prodMetric1: 'metric1',
+                            },
+                            Brand: 'brand',
+                            Category: 'category',
+                            CouponCode: 'coupon',
+                            Name: 'galaxy',
+                            Position: 1,
+                            Price: 799,
+                            Quantity: 1,
+                            Sku: 'galaxySKU',
+                            TotalAmount: 799,
+                            Variant: 'variant',
+                        },
+                    ],
+                },
+            ],
+        });
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Brand',
+            'brand'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Category',
+            'category'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Coupon Code',
+            'coupon'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Id',
+            'iphoneSKU'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Item Price',
+            999
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Name',
+            'iphone'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Position',
+            1
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Product Impression List',
+            '"Suggested Products List"'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Quantity',
+            1
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Variant',
+            'variant'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'eventMetric1',
+            'metric2'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'journeyType',
+            'testjourneytype1'
+        );
+
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Brand',
+            'brand'
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Category',
+            'category'
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Coupon Code',
+            'coupon'
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Id',
+            'galaxySKU'
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Item Price',
+            799
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Name',
+            'galaxy'
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Position',
+            1
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Product Impression List',
+            '"Suggested Products List"'
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Quantity',
+            1
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'Variant',
+            'variant'
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'attr1',
+            'hit-att2-type'
+        );
+        amplitude.instances.newInstance.events[1].attrs.should.have.property(
+            'prodMetric1',
+            'metric1'
+        );
+
+        done();
+    });
+
+    it('should log promotion clicks as events', function (done) {
+        mParticle.forwarder.process({
+            EventDataType: MessageType.Commerce,
+            EventCategory: CommerceEventType.PromotionClick,
+            PromotionAction: {
+                PromotionActionType: PromotionActionType.PromotionClick,
+                PromotionList: [
+                    {
+                        Id: 'my_promo_1',
+                        Creative: 'sale_banner_1',
+                        Name: 'App-wide 50% off sale',
+                    },
+                ],
+            },
+        });
+        amplitude.instances.newInstance.events[0].should.property(
+            'eventName',
+            'eCommerce - click - Item'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Id',
+            'my_promo_1'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Creative',
+            'sale_banner_1'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Name',
+            'App-wide 50% off sale'
+        );
+
+        done();
+    });
+
+    it('should log promotion views as events', function (done) {
+        mParticle.forwarder.process({
+            EventDataType: MessageType.Commerce,
+            EventCategory: CommerceEventType.PromotionView,
+            PromotionAction: {
+                PromotionActionType: PromotionActionType.PromotionView,
+                PromotionList: [
+                    {
+                        Id: 'my_promo_1',
+                        Creative: 'sale_banner_1',
+                        Name: 'App-wide 50% off sale',
+                    },
+                ],
+            },
+        });
+        console.log(amplitude.instances.newInstance.events);
+
+        amplitude.instances.newInstance.events[0].should.property(
+            'eventName',
+            'eCommerce - view - Item'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Id',
+            'my_promo_1'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Creative',
+            'sale_banner_1'
+        );
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
+            'Name',
+            'App-wide 50% off sale'
+        );
 
         done();
     });
@@ -713,31 +951,31 @@ describe('Amplitude forwarder', function () {
         );
 
         // Product level attributes
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Id',
             '12345'
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Item Price',
             400
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Quantity',
             1
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Transaction Id',
             123
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'CustomEventAttribute',
             'SomeEventAttributeValue'
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'CustomProductAttribute',
             'Cool'
         );
-        amplitude.instances.newInstance.attrs.should.not.property(
+        amplitude.instances.newInstance.events[0].attrs.should.not.property(
             'Total Product Amount'
         );
 
@@ -803,31 +1041,31 @@ describe('Amplitude forwarder', function () {
         );
 
         // Product level attributes
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Id',
             '12345'
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Item Price',
             400
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Quantity',
             1
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Transaction Id',
             123
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'CustomEventAttribute',
             'SomeEventAttributeValue'
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'CustomProductAttribute',
             'Cool'
         );
-        amplitude.instances.newInstance.attrs.should.not.property(
+        amplitude.instances.newInstance.events[0].attrs.should.not.property(
             'Total Product Amount'
         );
 
@@ -863,31 +1101,31 @@ describe('Amplitude forwarder', function () {
         amplitude.instances.newInstance.should.not.have.property('revenueObj');
 
         // Product level attributes
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Id',
             '12345'
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Item Price',
             400
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Quantity',
             1
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Transaction Id',
             123
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'CustomEventAttribute',
             'SomeEventAttributeValue'
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'CustomProductAttribute',
             'Cool'
         );
-        amplitude.instances.newInstance.attrs.should.not.property(
+        amplitude.instances.newInstance.events[0].attrs.should.not.property(
             'Total Product Amount'
         );
 
@@ -923,31 +1161,31 @@ describe('Amplitude forwarder', function () {
         amplitude.instances.newInstance.should.not.have.property('revenueObj');
 
         // Product level attributes
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Id',
             '12345'
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Item Price',
             400
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Quantity',
             1
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'Transaction Id',
             123
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'CustomEventAttribute',
             'SomeEventAttributeValue'
         );
-        amplitude.instances.newInstance.attrs.should.have.property(
+        amplitude.instances.newInstance.events[0].attrs.should.have.property(
             'CustomProductAttribute',
             'Cool'
         );
-        amplitude.instances.newInstance.attrs.should.not.property(
+        amplitude.instances.newInstance.events[0].attrs.should.not.property(
             'Total Product Amount'
         );
 
@@ -1003,20 +1241,22 @@ describe('Amplitude forwarder', function () {
                 },
             });
 
-            amplitude.instances.newInstance.should.have.property(
+            amplitude.instances.newInstance.events[0].should.have.property(
                 'eventName',
                 'Viewed Test Page View'
             );
-            amplitude.instances.newInstance.should.have.property('attrs');
-            amplitude.instances.newInstance.attrs.should.have.property(
+            amplitude.instances.newInstance.events[0].should.have.property(
+                'attrs'
+            );
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
                 'Path',
                 'Test'
             );
-            amplitude.instances.newInstance.attrs.should.have.property(
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
                 'Array',
                 ['abc', 'def', 'ghi']
             );
-            amplitude.instances.newInstance.attrs.Obj.should.have.property(
+            amplitude.instances.newInstance.events[0].attrs.Obj.should.have.property(
                 'foo',
                 'bar'
             );
@@ -1064,15 +1304,15 @@ describe('Amplitude forwarder', function () {
             );
 
             // Product level attributes
-            amplitude.instances.newInstance.attrs.should.have.property(
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
                 'CustomEventAttribute',
                 'SomeEventAttributeValue'
             );
-            amplitude.instances.newInstance.attrs.should.have.property(
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
                 'Array',
                 ['abc', 'def', 'ghi']
             );
-            amplitude.instances.newInstance.attrs.Obj.should.have.property(
+            amplitude.instances.newInstance.events[0].attrs.Obj.should.have.property(
                 'foo',
                 'bar'
             );
@@ -1090,15 +1330,15 @@ describe('Amplitude forwarder', function () {
                 },
             });
 
-            amplitude.instances.newInstance.attrs.should.have.property(
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
                 'CustomEventAttribute',
                 'SomeEventAttributeValue'
             );
-            amplitude.instances.newInstance.attrs.should.have.property(
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
                 'Array',
                 ['abc', 'def', 'ghi']
             );
-            amplitude.instances.newInstance.attrs.Obj.should.have.property(
+            amplitude.instances.newInstance.events[0].attrs.Obj.should.have.property(
                 'foo',
                 'bar'
             );

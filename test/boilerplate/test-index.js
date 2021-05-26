@@ -55,7 +55,7 @@ var amplitudeClient = function (instanceName) {
 
   this.init = function (key, arg1, settings) {
     self.settings = settings;
-    self.eventName = null;
+    self.events = [];
     self.attrs = null;
     self.amount = null;
     self.quantity = null;
@@ -76,8 +76,10 @@ var amplitudeClient = function (instanceName) {
   };
 
   this.logEvent = function (name, attrs) {
-    self.eventName = name;
-    self.attrs = attrs;
+    self.events.push({
+        eventName: name,
+        attrs: attrs,
+    });
   };
 
   this.setOptOut = function (isOptingOut) {
