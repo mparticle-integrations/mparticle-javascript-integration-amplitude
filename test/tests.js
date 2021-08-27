@@ -246,7 +246,6 @@ describe('Amplitude forwarder', function () {
     });
 
     it('should log product impressions as events', function (done) {
-        debugger;
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
             EventCategory: CommerceEventType.ProductImpression,
@@ -1351,6 +1350,7 @@ describe('Amplitude forwarder', function () {
 describe('Default amplitude settings', function () {
     it('sets default amplitude settings', function () {
         var platform = 'International Space Station';
+        var baseUrl = 'api2.amplitude.com';
         window.AmplitudeInitSettings = {
             platform: platform,
         };
@@ -1363,6 +1363,7 @@ describe('Default amplitude settings', function () {
                 includeUtm: 'False',
                 includeReferrer: 'True',
                 instanceName: 'newInstance',
+                baseUrl: baseUrl
             },
             function (forwarder, event) {
                 self.id = forwarder.id;
@@ -1374,6 +1375,11 @@ describe('Default amplitude settings', function () {
         amplitude.instances.newInstance.settings.should.have.property(
             'platform',
             platform
+        );
+
+        amplitude.instances.newInstance.settings.should.have.property(
+            'apiEndpoint',
+            baseUrl
         );
     });
 });
