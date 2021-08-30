@@ -493,6 +493,11 @@ var mpAmplitudeKit = (function (exports) {
                       forwarderSettings.forceHttps === 'True';
               }
 
+              if (forwarderSettings.baseUrl) {
+                  ampSettings.apiEndpoint =
+                      forwarderSettings.baseUrl;
+              }
+
               isDefaultInstance =
                   !forwarderSettings.instanceName ||
                   forwarderSettings.instanceName === 'default';
