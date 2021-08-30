@@ -1,6 +1,10 @@
 ## Releases
 
 --
+#### 2.1.0 - 2021-08-30
+
+-   feat: Add support for EU Data Center
+
 #### 2.0.8 - 2021-05-26
 
 -   Generate bundle that was not included in 2.0.7 release 
