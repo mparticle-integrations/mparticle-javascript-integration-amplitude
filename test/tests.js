@@ -525,6 +525,12 @@ describe('Amplitude forwarder', function () {
                             other2: 'other2',
                             other3: 'other3',
                             other4: 'other4',
+                            other5: 'other5',
+                            other6: 'other6',
+                            other7: 'other7',
+                            other8: 'other8',
+                            other9: 'other9',
+                            other10: 'other10',
                         },
                     };
                 },
@@ -706,6 +712,126 @@ describe('Amplitude forwarder', function () {
                 amplitude.instances.newInstance.should.have.property(
                     'userId',
                     'other4'
+                );
+
+                done();
+            });
+
+            it('should set userId as other5 on onUserIdentified if forwarder settings has other5 as userIdField', function (done) {
+                mParticle.forwarder.init(
+                    {
+                        userIdentification: 'other5',
+                        instanceName: 'newInstance',
+                    },
+                    reportService.cb,
+                    true
+                );
+
+                mParticle.forwarder.onUserIdentified(mParticleUser);
+
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    'other5'
+                );
+
+                done();
+            });
+
+            it('should set userId as other6 on onUserIdentified if forwarder settings has other6 as userIdField', function (done) {
+                mParticle.forwarder.init(
+                    {
+                        userIdentification: 'other6',
+                        instanceName: 'newInstance',
+                    },
+                    reportService.cb,
+                    true
+                );
+
+                mParticle.forwarder.onUserIdentified(mParticleUser);
+
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    'other6'
+                );
+
+                done();
+            });
+
+            it('should set userId as other7 on onUserIdentified if forwarder settings has other7 as userIdField', function (done) {
+                mParticle.forwarder.init(
+                    {
+                        userIdentification: 'other7',
+                        instanceName: 'newInstance',
+                    },
+                    reportService.cb,
+                    true
+                );
+
+                mParticle.forwarder.onUserIdentified(mParticleUser);
+
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    'other7'
+                );
+
+                done();
+            });
+
+            it('should set userId as other8 on onUserIdentified if forwarder settings has other4 as userIdField', function (done) {
+                mParticle.forwarder.init(
+                    {
+                        userIdentification: 'other8',
+                        instanceName: 'newInstance',
+                    },
+                    reportService.cb,
+                    true
+                );
+
+                mParticle.forwarder.onUserIdentified(mParticleUser);
+
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    'other8'
+                );
+
+                done();
+            });
+
+            it('should set userId as other9 on onUserIdentified if forwarder settings has other4 as userIdField', function (done) {
+                mParticle.forwarder.init(
+                    {
+                        userIdentification: 'other9',
+                        instanceName: 'newInstance',
+                    },
+                    reportService.cb,
+                    true
+                );
+
+                mParticle.forwarder.onUserIdentified(mParticleUser);
+
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    'other9'
+                );
+
+                done();
+            });
+
+            it('should set userId as other10 on onUserIdentified if forwarder settings has other4 as userIdField', function (done) {
+                mParticle.forwarder.init(
+                    {
+                        userIdentification: 'other10',
+                        instanceName: 'newInstance',
+                    },
+                    reportService.cb,
+                    true
+                );
+
+                mParticle.forwarder.onUserIdentified(mParticleUser);
+
+                amplitude.instances.newInstance.should.have.property(
+                    'userId',
+                    'other10'
                 );
 
                 done();
@@ -1363,7 +1489,7 @@ describe('Default amplitude settings', function () {
                 includeUtm: 'False',
                 includeReferrer: 'True',
                 instanceName: 'newInstance',
-                baseUrl: baseUrl
+                baseUrl: baseUrl,
             },
             function (forwarder, event) {
                 self.id = forwarder.id;

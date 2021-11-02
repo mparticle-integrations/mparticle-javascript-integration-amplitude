@@ -36,6 +36,12 @@ var constants = {
     other2: 'other2',
     other3: 'other3',
     other4: 'other4',
+    other5: 'other5',
+    other6: 'other6',
+    other7: 'other7',
+    other8: 'other8',
+    other9: 'other9',
+    other10: 'other10',
 };
 
 /* eslint-disable */
@@ -207,6 +213,60 @@ var constructor = function () {
                         if (userIdentities.other4) {
                             return getInstance().setUserId(
                                 userIdentities.other4
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other5:
+                        if (userIdentities.other5) {
+                            return getInstance().setUserId(
+                                userIdentities.other5
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other6:
+                        if (userIdentities.other6) {
+                            return getInstance().setUserId(
+                                userIdentities.other6
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other7:
+                        if (userIdentities.other7) {
+                            return getInstance().setUserId(
+                                userIdentities.other7
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other8:
+                        if (userIdentities.other8) {
+                            return getInstance().setUserId(
+                                userIdentities.other8
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other9:
+                        if (userIdentities.other9) {
+                            return getInstance().setUserId(
+                                userIdentities.other9
+                            );
+                        } else {
+                            userIdMissing = true;
+                        }
+                        break;
+                    case constants.other10:
+                        if (userIdentities.other10) {
+                            return getInstance().setUserId(
+                                userIdentities.other10
                             );
                         } else {
                             userIdMissing = true;
