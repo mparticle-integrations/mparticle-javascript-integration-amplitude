@@ -151,6 +151,15 @@ var constructor = function () {
 
     function onUserIdentified(user) {
         var userIdMissing;
+
+        function setUserId(userId) {
+            if (userId) {
+                return getInstance().setUserId(userId);
+            } else {
+                userIdMissing = true;
+            }
+        }
+
         if (isInitialized) {
             var userIdentities = user.getUserIdentities().userIdentities;
 
@@ -162,115 +171,44 @@ var constructor = function () {
             try {
                 switch (forwarderSettings.userIdentification) {
                     case constants.MPID:
-                        return getInstance().setUserId(user.getMPID());
+                        setUserId(user.getMPID());
+                        break;
                     // server returns `customerId` whereas key on userIdentities object is `customerid`
                     case constants.customerId:
-                        if (userIdentities.customerid) {
-                            return getInstance().setUserId(
-                                userIdentities.customerid
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.customerid);
                         break;
                     case constants.email:
-                        if (userIdentities.email) {
-                            return getInstance().setUserId(
-                                userIdentities.email
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.email);
                         break;
                     case constants.other:
-                        if (userIdentities.other) {
-                            return getInstance().setUserId(
-                                userIdentities.other
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other);
                         break;
                     case constants.other2:
-                        if (userIdentities.other2) {
-                            return getInstance().setUserId(
-                                userIdentities.other2
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other2);
                         break;
                     case constants.other3:
-                        if (userIdentities.other3) {
-                            return getInstance().setUserId(
-                                userIdentities.other3
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other3);
                         break;
                     case constants.other4:
-                        if (userIdentities.other4) {
-                            return getInstance().setUserId(
-                                userIdentities.other4
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other4);
                         break;
                     case constants.other5:
-                        if (userIdentities.other5) {
-                            return getInstance().setUserId(
-                                userIdentities.other5
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other5);
                         break;
                     case constants.other6:
-                        if (userIdentities.other6) {
-                            return getInstance().setUserId(
-                                userIdentities.other6
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other6);
                         break;
                     case constants.other7:
-                        if (userIdentities.other7) {
-                            return getInstance().setUserId(
-                                userIdentities.other7
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other7);
                         break;
                     case constants.other8:
-                        if (userIdentities.other8) {
-                            return getInstance().setUserId(
-                                userIdentities.other8
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other8);
                         break;
                     case constants.other9:
-                        if (userIdentities.other9) {
-                            return getInstance().setUserId(
-                                userIdentities.other9
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other9);
                         break;
                     case constants.other10:
-                        if (userIdentities.other10) {
-                            return getInstance().setUserId(
-                                userIdentities.other10
-                            );
-                        } else {
-                            userIdMissing = true;
-                        }
+                        setUserId(userIdentities.other10);
                         break;
 
                     default:
@@ -542,8 +480,7 @@ var constructor = function () {
             }
 
             if (forwarderSettings.baseUrl) {
-                ampSettings.apiEndpoint =
-                    forwarderSettings.baseUrl;
+                ampSettings.apiEndpoint = forwarderSettings.baseUrl;
             }
 
             isDefaultInstance =
