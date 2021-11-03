@@ -150,15 +150,7 @@ var constructor = function () {
     }
 
     function onUserIdentified(user) {
-        var userIdMissing;
-
-        function setUserId(userId) {
-            if (userId) {
-                return getInstance().setUserId(userId);
-            } else {
-                userIdMissing = true;
-            }
-        }
+        var userId;
 
         if (isInitialized) {
             var userIdentities = user.getUserIdentities().userIdentities;
@@ -171,50 +163,51 @@ var constructor = function () {
             try {
                 switch (forwarderSettings.userIdentification) {
                     case constants.MPID:
-                        setUserId(user.getMPID());
+                        userId = user.getMPID();
                         break;
                     // server returns `customerId` whereas key on userIdentities object is `customerid`
                     case constants.customerId:
-                        setUserId(userIdentities.customerid);
+                        userId = userIdentities.customerid;
                         break;
                     case constants.email:
-                        setUserId(userIdentities.email);
+                        userId = userIdentities.email;
                         break;
                     case constants.other:
-                        setUserId(userIdentities.other);
+                        userId = userIdentities.other;
                         break;
                     case constants.other2:
-                        setUserId(userIdentities.other2);
+                        userId = userIdentities.other2;
                         break;
                     case constants.other3:
-                        setUserId(userIdentities.other3);
+                        userId = userIdentities.other3;
                         break;
                     case constants.other4:
-                        setUserId(userIdentities.other4);
+                        userId = userIdentities.other4;
                         break;
                     case constants.other5:
-                        setUserId(userIdentities.other5);
+                        userId = userIdentities.other5;
                         break;
                     case constants.other6:
-                        setUserId(userIdentities.other6);
+                        userId = userIdentities.other6;
                         break;
                     case constants.other7:
-                        setUserId(userIdentities.other7);
+                        userId = userIdentities.other7;
                         break;
                     case constants.other8:
-                        setUserId(userIdentities.other8);
+                        userId = userIdentities.other8;
                         break;
                     case constants.other9:
-                        setUserId(userIdentities.other9);
+                        userId = userIdentities.other9;
                         break;
                     case constants.other10:
-                        setUserId(userIdentities.other10);
+                        userId = userIdentities.other10;
                         break;
-
                     default:
-                        return;
+                        userId = null;
                 }
-                if (userIdMissing) {
+                if (userId) {
+                    return getInstance().setUserId(userId);
+                } else {
                     console.warn(
                         'A user identification type of ' +
                             forwarderSettings.userIdentification +
