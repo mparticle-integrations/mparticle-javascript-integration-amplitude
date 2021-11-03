@@ -48,6 +48,12 @@ var mpAmplitudeKit = (function (exports) {
       other2: 'other2',
       other3: 'other3',
       other4: 'other4',
+      other5: 'other5',
+      other6: 'other6',
+      other7: 'other7',
+      other8: 'other8',
+      other9: 'other9',
+      other10: 'other10',
   };
 
   /* eslint-disable */
@@ -156,7 +162,8 @@ var mpAmplitudeKit = (function (exports) {
       }
 
       function onUserIdentified(user) {
-          var userIdMissing;
+          var userId;
+
           if (isInitialized) {
               var userIdentities = user.getUserIdentities().userIdentities;
 
@@ -168,67 +175,51 @@ var mpAmplitudeKit = (function (exports) {
               try {
                   switch (forwarderSettings.userIdentification) {
                       case constants.MPID:
-                          return getInstance().setUserId(user.getMPID());
+                          userId = user.getMPID();
+                          break;
                       // server returns `customerId` whereas key on userIdentities object is `customerid`
                       case constants.customerId:
-                          if (userIdentities.customerid) {
-                              return getInstance().setUserId(
-                                  userIdentities.customerid
-                              );
-                          } else {
-                              userIdMissing = true;
-                          }
+                          userId = userIdentities.customerid;
                           break;
                       case constants.email:
-                          if (userIdentities.email) {
-                              return getInstance().setUserId(
-                                  userIdentities.email
-                              );
-                          } else {
-                              userIdMissing = true;
-                          }
+                          userId = userIdentities.email;
                           break;
                       case constants.other:
-                          if (userIdentities.other) {
-                              return getInstance().setUserId(
-                                  userIdentities.other
-                              );
-                          } else {
-                              userIdMissing = true;
-                          }
+                          userId = userIdentities.other;
                           break;
                       case constants.other2:
-                          if (userIdentities.other2) {
-                              return getInstance().setUserId(
-                                  userIdentities.other2
-                              );
-                          } else {
-                              userIdMissing = true;
-                          }
+                          userId = userIdentities.other2;
                           break;
                       case constants.other3:
-                          if (userIdentities.other3) {
-                              return getInstance().setUserId(
-                                  userIdentities.other3
-                              );
-                          } else {
-                              userIdMissing = true;
-                          }
+                          userId = userIdentities.other3;
                           break;
                       case constants.other4:
-                          if (userIdentities.other4) {
-                              return getInstance().setUserId(
-                                  userIdentities.other4
-                              );
-                          } else {
-                              userIdMissing = true;
-                          }
+                          userId = userIdentities.other4;
                           break;
-
+                      case constants.other5:
+                          userId = userIdentities.other5;
+                          break;
+                      case constants.other6:
+                          userId = userIdentities.other6;
+                          break;
+                      case constants.other7:
+                          userId = userIdentities.other7;
+                          break;
+                      case constants.other8:
+                          userId = userIdentities.other8;
+                          break;
+                      case constants.other9:
+                          userId = userIdentities.other9;
+                          break;
+                      case constants.other10:
+                          userId = userIdentities.other10;
+                          break;
                       default:
-                          return;
+                          userId = null;
                   }
-                  if (userIdMissing) {
+                  if (userId) {
+                      return getInstance().setUserId(userId);
+                  } else {
                       console.warn(
                           'A user identification type of ' +
                               forwarderSettings.userIdentification +
@@ -494,8 +485,7 @@ var mpAmplitudeKit = (function (exports) {
               }
 
               if (forwarderSettings.baseUrl) {
-                  ampSettings.apiEndpoint =
-                      forwarderSettings.baseUrl;
+                  ampSettings.apiEndpoint = forwarderSettings.baseUrl;
               }
 
               isDefaultInstance =
