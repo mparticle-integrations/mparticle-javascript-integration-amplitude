@@ -1,6 +1,10 @@
 ## Releases
 
 --
+#### 2.2.0 - 2021-11-03
+
+-   feat: Support other5-other10 IDs
+
 #### 2.1.0 - 2021-08-30
 
 -   feat: Add support for EU Data Center
