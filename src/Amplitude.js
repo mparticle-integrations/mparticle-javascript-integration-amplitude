@@ -44,6 +44,8 @@ var constants = {
     other10: 'other10',
 };
 
+var MP_AMP_SPLIT = 'mparticle_amplitude_should_split';
+
 /* eslint-disable */
 // prettier-ignore
 var renderSnippet = function() {
@@ -340,6 +342,17 @@ var constructor = function () {
         var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
         if (event.ProductAction) {
             var isRefund, isPurchase, logRevenue;
+            var sendProductsSeparately =
+                forwarderSettings.WHATEVER_WE_DECIDE_FLAG_NAME_IS === 'False';
+            var updatedAttributes = createEcommerceAttributes(
+                event.EventAttributes
+            );
+            updatedAttributes[MP_AMP_SPLIT] = !sendProductsSeparately;
+
+            updatedAttributes.products = JSON.stringify(
+                event.ProductAction.ProductList
+            );
+
             isRefund =
                 event.ProductAction.ProductActionType ===
                 mParticle.ProductActionType.Refund;
@@ -347,28 +360,28 @@ var constructor = function () {
                 event.ProductAction.ProductActionType ===
                 mParticle.ProductActionType.Purchase;
             logRevenue = isRefund || isPurchase;
-            expandedEvents.forEach(function (expandedEvt) {
-                // Exclude Totals from the attributes as we log it in the revenue call
-                var updatedAttributes = createEcommerceAttributes(
-                    expandedEvt.EventAttributes
-                );
 
-                // Purchase and Refund events generate an additional 'Total' event
-                if (logRevenue && expandedEvt.EventName.indexOf('Total') > -1) {
-                    var revenueAmount =
-                        (expandedEvt.EventAttributes['Total Amount'] || 0) *
-                        (isRefund ? -1 : 1);
-                    var revenue = new window.amplitude.Revenue()
-                        .setPrice(revenueAmount)
-                        .setEventProperties(updatedAttributes);
-                    getInstance().logRevenueV2(revenue);
-                } else {
-                    getInstance().logEvent(
-                        expandedEvt.EventName,
-                        updatedAttributes
-                    );
-                }
-            });
+            // if it's a revenue event, send it using Amplitude's revenue event API
+            if (logRevenue) {
+                sendAmplitudeRevenueEvent(updatedAttributes, isRefund);
+            } else {
+                updatedAttributes['Tax Amount'] = event.ProductAction
+                    ? event.ProductAction.TaxAmount
+                    : 0;
+                updatedAttributes['Transaction Id'] = event.ProductAction
+                    ? event.ProductAction.TransactionId
+                    : '';
+                updatedAttributes['Currency Code'] = event.CurrencyCode;
+                updatedAttributes['Total Amount'] =
+                    event.ProductAction.TotalAmount;
+
+                // add product json to attributes
+                getInstance().logEvent(event.EventName, updatedAttributes);
+            }
+
+            if (sendProductsSeparately) {
+                sendProducts(expandedEvents, logRevenue);
+            }
 
             return true;
         }
@@ -394,6 +407,31 @@ var constructor = function () {
         }
 
         return false;
+    }
+
+    function sendAmplitudeRevenueEvent(updatedAttributes, isRefund) {
+        var revenueAmount =
+            (updatedAttributes['Total Amount'] || 0) * (isRefund ? -1 : 1);
+
+        var revenue = new window.amplitude.Revenue()
+            .setPrice(revenueAmount)
+            .setEventProperties(updatedAttributes);
+        getInstance().logRevenueV2(revenue);
+    }
+
+    function sendProducts(expandedEvents) {
+        expandedEvents.forEach(function (expandedEvt) {
+            // Exclude Totals from the attributes as we log it in the revenue call
+            var updatedAttributes = createEcommerceAttributes(
+                expandedEvt.EventAttributes
+            );
+            if (expandedEvt.EventName.indexOf('Total') === -1) {
+                getInstance().logEvent(
+                    expandedEvt.EventName,
+                    updatedAttributes
+                );
+            }
+        });
     }
 
     function convertJsonAttrs(customAttributes) {
