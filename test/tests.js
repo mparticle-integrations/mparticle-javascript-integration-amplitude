@@ -1017,94 +1017,117 @@ describe('Amplitude forwarder', function () {
         done();
     });
 
-    it('should log purchase commerce events', function (done) {
-        mParticle.forwarder.process({
-            EventAttributes: {
-                CustomEventAttribute: 'SomeEventAttributeValue',
-            },
-            EventDataType: MessageType.Commerce,
-            ProductAction: {
-                TransactionId: 123,
-                Affiliation: 'my-affiliation',
-                TotalAmount: 234,
-                TaxAmount: 40,
-                ShippingAmount: 10,
-                CouponCode: 'WinnerChickenDinner',
-                ProductActionType: ProductActionType.Purchase,
-                ProductList: [
-                    {
-                        Sku: '12345',
-                        Price: 400,
-                        Quantity: 1,
-                        Attributes: { CustomProductAttribute: 'Cool' },
-                    },
-                ],
-            },
+    describe('eCommerce Events', function () {
+        beforeEach(function () {
+            mParticle.forwarder.init(
+                {
+                    saveEvents: 'True',
+                    savedMaxCount: 20,
+                    uploadBatchSize: 5,
+                    includeUtm: 'False',
+                    includeReferrer: 'True',
+                    instanceName: 'newInstance',
+                    sendOnlySummaryEvent: 'false',
+                },
+                reportService.cb,
+                true
+            );
         });
 
-        // Transaction Level Attribute
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-            'Transaction Id',
-            123
-        );
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-            'Coupon Code',
-            'WinnerChickenDinner'
-        );
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-            'Affiliation',
-            'my-affiliation'
-        );
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-            'Shipping Amount',
-            10
-        );
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-            'Tax Amount',
-            40
-        );
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-            'CustomEventAttribute',
-            'SomeEventAttributeValue'
-        );
-        amplitude.instances.newInstance.revenueObj.eventAttributes.should.not.have.property(
-            'Total Amount'
-        );
-        amplitude.instances.newInstance.revenueObj.should.have.property(
-            'price',
-            234
-        );
+        mParticle.init('faketoken', {
+            requestConfig: false,
+            workspaceToken: 'fakeToken',
+        });
 
-        // Product level attributes
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'Id',
-            '12345'
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'Item Price',
-            400
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'Quantity',
-            1
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'Transaction Id',
-            123
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'CustomEventAttribute',
-            'SomeEventAttributeValue'
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'CustomProductAttribute',
-            'Cool'
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.not.property(
-            'Total Product Amount'
-        );
+        it.only('should log purchase commerce events', function (done) {
+            mParticle.forwarder.process({
+                EventAttributes: {
+                    CustomEventAttribute: 'SomeEventAttributeValue',
+                },
+                EventDataType: MessageType.Commerce,
+                ProductAction: {
+                    TransactionId: 123,
+                    Affiliation: 'my-affiliation',
+                    TotalAmount: 234,
+                    TaxAmount: 40,
+                    ShippingAmount: 10,
+                    CouponCode: 'WinnerChickenDinner',
+                    ProductActionType: ProductActionType.Purchase,
+                    ProductList: [
+                        {
+                            Sku: '12345',
+                            Price: 400,
+                            Quantity: 1,
+                            Attributes: { CustomProductAttribute: 'Cool' },
+                        },
+                    ],
+                },
+            });
+            debugger;
+            // Transaction Level Attribute
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+                'Transaction Id',
+                123
+            );
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+                'Coupon Code',
+                'WinnerChickenDinner'
+            );
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+                'Affiliation',
+                'my-affiliation'
+            );
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+                'Shipping Amount',
+                10
+            );
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+                'Tax Amount',
+                40
+            );
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
+                'CustomEventAttribute',
+                'SomeEventAttributeValue'
+            );
+            amplitude.instances.newInstance.revenueObj.eventAttributes.should.not.have.property(
+                'Total Amount'
+            );
+            amplitude.instances.newInstance.revenueObj.should.have.property(
+                'price',
+                234
+            );
 
-        done();
+            // Product level attributes
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                'Id',
+                '12345'
+            );
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                'Item Price',
+                400
+            );
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                'Quantity',
+                1
+            );
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                'Transaction Id',
+                123
+            );
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                'CustomEventAttribute',
+                'SomeEventAttributeValue'
+            );
+            amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                'CustomProductAttribute',
+                'Cool'
+            );
+            amplitude.instances.newInstance.events[0].attrs.should.not.property(
+                'Total Product Amount'
+            );
+
+            done();
+        });
     });
 
     it('should log refund commerce events', function (done) {

@@ -342,8 +342,8 @@ var constructor = function () {
         var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
         if (event.ProductAction) {
             var isRefund, isPurchase, logRevenue;
-            var sendProductsSeparately =
-                forwarderSettings.WHATEVER_WE_DECIDE_FLAG_NAME_IS === 'False';
+            var sendOnlySummaryEvent =
+                forwarderSettings.sendOnlySummaryEvent === 'True';
             var updatedAttributes = createEcommerceAttributes(
                 event.EventAttributes
             );
@@ -379,7 +379,7 @@ var constructor = function () {
                 getInstance().logEvent(event.EventName, updatedAttributes);
             }
 
-            if (sendProductsSeparately) {
+            if (!sendOnlySummaryEvent) {
                 sendProducts(expandedEvents, logRevenue);
             }
 
