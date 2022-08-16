@@ -1017,118 +1017,187 @@ describe('Amplitude forwarder', function () {
         done();
     });
 
-    describe('eCommerce Events', function () {
+    describe.only('ecommerce', function () {
+        var product1, product2, commerceEvent;
         beforeEach(function () {
-            mParticle.forwarder.init(
-                {
-                    saveEvents: 'True',
-                    savedMaxCount: 20,
-                    uploadBatchSize: 5,
-                    includeUtm: 'False',
-                    includeReferrer: 'True',
-                    instanceName: 'newInstance',
-                    sendOnlySummaryEvent: 'false',
+            product1 = {
+                Name: 'iphone',
+                Sku: 'iphoneSKU',
+                Price: 999,
+                Quantity: 1,
+                Brand: 'brand',
+                Variant: 'variant',
+                Category: 'category',
+                Position: 1,
+                CouponCode: 'coupon',
+                TotalAmount: 999,
+                Attributes: {
+                    journeyType: 'testjourneytype1',
+                    eventMetric1: 'metric2',
                 },
-                reportService.cb,
-                true
-            );
-        });
-
-        mParticle.init('faketoken', {
-            requestConfig: false,
-            workspaceToken: 'fakeToken',
-        });
-
-        it.only('should log purchase commerce events', function (done) {
-            mParticle.forwarder.process({
+            };
+            product2 = {
+                Name: 'galaxy',
+                Sku: 'galaxySKU',
+                Price: 799,
+                Quantity: 1,
+                Brand: 'brand',
+                Variant: 'variant',
+                Category: 'category',
+                Position: 1,
+                CouponCode: 'coupon',
+                TotalAmount: 799,
+                Attributes: {
+                    'hit-att2': 'hit-att2-type',
+                    prodMetric1: 'metric1',
+                },
+            };
+            commerceEvent = {
                 EventAttributes: {
-                    CustomEventAttribute: 'SomeEventAttributeValue',
+                    sale: true,
                 },
-                EventDataType: MessageType.Commerce,
+                EventDataType: 16,
+                CurrencyCode: 'USD',
                 ProductAction: {
-                    TransactionId: 123,
-                    Affiliation: 'my-affiliation',
-                    TotalAmount: 234,
-                    TaxAmount: 40,
-                    ShippingAmount: 10,
-                    CouponCode: 'WinnerChickenDinner',
-                    ProductActionType: ProductActionType.Purchase,
-                    ProductList: [
-                        {
-                            Sku: '12345',
-                            Price: 400,
-                            Quantity: 1,
-                            Attributes: { CustomProductAttribute: 'Cool' },
-                        },
-                    ],
+                    ProductList: [product1, product2],
+                    TransactionId: 'foo-transaction-id',
+                    TotalAmount: 430,
+                    TaxAmount: 30,
                 },
+            };
+        });
+
+        describe('eCommerce Events with includeProductsArray set to false', function () {
+            beforeEach(function () {
+                mParticle.forwarder.init(
+                    {
+                        saveEvents: 'True',
+                        savedMaxCount: 20,
+                        uploadBatchSize: 5,
+                        includeUtm: 'False',
+                        includeReferrer: 'True',
+                        instanceName: 'newInstance',
+                        includeProductsArray: 'False',
+                    },
+                    reportService.cb,
+                    true
+                );
             });
-            debugger;
-            // Transaction Level Attribute
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-                'Transaction Id',
-                123
-            );
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-                'Coupon Code',
-                'WinnerChickenDinner'
-            );
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-                'Affiliation',
-                'my-affiliation'
-            );
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-                'Shipping Amount',
-                10
-            );
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-                'Tax Amount',
-                40
-            );
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.have.property(
-                'CustomEventAttribute',
-                'SomeEventAttributeValue'
-            );
-            amplitude.instances.newInstance.revenueObj.eventAttributes.should.not.have.property(
-                'Total Amount'
-            );
-            amplitude.instances.newInstance.revenueObj.should.have.property(
-                'price',
-                234
-            );
 
-            // Product level attributes
-            amplitude.instances.newInstance.events[0].attrs.should.have.property(
-                'Id',
-                '12345'
-            );
-            amplitude.instances.newInstance.events[0].attrs.should.have.property(
-                'Item Price',
-                400
-            );
-            amplitude.instances.newInstance.events[0].attrs.should.have.property(
-                'Quantity',
-                1
-            );
-            amplitude.instances.newInstance.events[0].attrs.should.have.property(
-                'Transaction Id',
-                123
-            );
-            amplitude.instances.newInstance.events[0].attrs.should.have.property(
-                'CustomEventAttribute',
-                'SomeEventAttributeValue'
-            );
-            amplitude.instances.newInstance.events[0].attrs.should.have.property(
-                'CustomProductAttribute',
-                'Cool'
-            );
-            amplitude.instances.newInstance.events[0].attrs.should.not.property(
-                'Total Product Amount'
-            );
+            it('should log transaction level add to cart commerce event and item level events per item', function (done) {
+                commerceEvent.EventName = 'eCommerce - AddToCart';
+                commerceEvent.EventCategory =
+                    CommerceEventType.ProductAddToCart;
+                commerceEvent.ProductAction.ProductActionType =
+                    ProductActionType.AddToCart;
 
-            done();
+                mParticle.forwarder.process(commerceEvent);
+                // events[0] has the summary event
+                amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                    'mparticle_amplitude_should_split',
+                    false
+                );
+                amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                    'sale',
+                    true
+                );
+                amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                    'products',
+                    JSON.stringify([product1, product2])
+                );
+
+                amplitude.instances.newInstance.events[1].should.have.property(
+                    'eventName',
+                    'eCommerce - add_to_cart - Item'
+                );
+
+                amplitude.instances.newInstance.events[1].attrs.should.deepEqual(
+                    {
+                        Brand: 'brand',
+                        Category: 'category',
+                        'Coupon Code': 'coupon',
+                        Id: 'iphoneSKU',
+                        'Item Price': 999,
+                        Name: 'iphone',
+                        Position: 1,
+                        Quantity: 1,
+                        'Tax Amount': 30,
+                        'Transaction Id': 'foo-transaction-id',
+                        Variant: 'variant',
+                        eventMetric1: 'metric2',
+                        journeyType: 'testjourneytype1',
+                        sale: true,
+                    }
+                );
+
+                amplitude.instances.newInstance.events[2].attrs.should.deepEqual(
+                    {
+                        Brand: 'brand',
+                        Category: 'category',
+                        'Coupon Code': 'coupon',
+                        Id: 'galaxySKU',
+                        'Item Price': 799,
+                        Name: 'galaxy',
+                        Position: 1,
+                        Quantity: 1,
+                        'Tax Amount': 30,
+                        'Transaction Id': 'foo-transaction-id',
+                        Variant: 'variant',
+                        'hit-att2': 'hit-att2-type',
+                        prodMetric1: 'metric1',
+                        sale: true,
+                    }
+                );
+
+                done();
+            });
+        });
+
+        describe('eCommerce Events with includeProductsArray set to true', function () {
+            beforeEach(function () {
+                mParticle.forwarder.init(
+                    {
+                        saveEvents: 'True',
+                        savedMaxCount: 20,
+                        uploadBatchSize: 5,
+                        includeUtm: 'False',
+                        includeReferrer: 'True',
+                        instanceName: 'newInstance',
+                        includeProductsArray: 'True',
+                    },
+                    reportService.cb,
+                    true
+                );
+            });
+
+            it('should log transaction level add to cart commerce event and no item level events', function (done) {
+                commerceEvent.EventName = 'eCommerce - AddToCart';
+                commerceEvent.EventCategory =
+                    CommerceEventType.ProductAddToCart;
+                commerceEvent.ProductAction.ProductActionType =
+                    ProductActionType.AddToCart;
+                mParticle.forwarder.process(commerceEvent);
+                // events[0] has the summary event
+                amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                    'mparticle_amplitude_should_split',
+                    true
+                );
+                amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                    'sale',
+                    true
+                );
+                amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                    'products',
+                    JSON.stringify([product1, product2])
+                );
+
+                amplitude.instances.newInstance.events.length.should.equal(1);
+
+                done();
+            });
         });
     });
+    
 
     it('should log refund commerce events', function (done) {
         mParticle.forwarder.process({

@@ -342,16 +342,8 @@ var constructor = function () {
         var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
         if (event.ProductAction) {
             var isRefund, isPurchase, logRevenue;
-            var sendOnlySummaryEvent =
-                forwarderSettings.sendOnlySummaryEvent === 'True';
-            var updatedAttributes = createEcommerceAttributes(
-                event.EventAttributes
-            );
-            updatedAttributes[MP_AMP_SPLIT] = !sendProductsSeparately;
-
-            updatedAttributes.products = JSON.stringify(
-                event.ProductAction.ProductList
-            );
+            var sendProductsSeparately =
+                forwarderSettings.includeProductsArray === 'False';
 
             isRefund =
                 event.ProductAction.ProductActionType ===
@@ -361,31 +353,21 @@ var constructor = function () {
                 mParticle.ProductActionType.Purchase;
             logRevenue = isRefund || isPurchase;
 
-            // if it's a revenue event, send it using Amplitude's revenue event API
-            if (logRevenue) {
-                sendAmplitudeRevenueEvent(updatedAttributes, isRefund);
-            } else {
-                updatedAttributes['Tax Amount'] = event.ProductAction
-                    ? event.ProductAction.TaxAmount
-                    : 0;
-                updatedAttributes['Transaction Id'] = event.ProductAction
-                    ? event.ProductAction.TransactionId
-                    : '';
-                updatedAttributes['Currency Code'] = event.CurrencyCode;
-                updatedAttributes['Total Amount'] =
-                    event.ProductAction.TotalAmount;
+            sendSummaryEvent(
+                event,
+                isRefund,
+                logRevenue,
+                sendProductsSeparately
+            );
 
-                // add product json to attributes
-                getInstance().logEvent(event.EventName, updatedAttributes);
-            }
-
-            if (!sendOnlySummaryEvent) {
-                sendProducts(expandedEvents, logRevenue);
+            if (sendProductsSeparately) {
+                sendProducts(expandedEvents);
             }
 
             return true;
         }
 
+        // If event.ProductAction does not exist, the commerce event is a promotion or impression event
         if (
             event.EventCategory ===
                 mParticle.CommerceEventType.ProductImpression ||
@@ -409,7 +391,36 @@ var constructor = function () {
         return false;
     }
 
-    function sendAmplitudeRevenueEvent(updatedAttributes, isRefund) {
+    function sendSummaryEvent(
+        event,
+        isRefund,
+        logRevenue,
+        sendProductsSeparately
+    ) {
+        var updatedAttributes = createEcommerceAttributes(
+            event.EventAttributes
+        );
+        updatedAttributes[MP_AMP_SPLIT] = !sendProductsSeparately;
+        updatedAttributes['products'] = JSON.stringify(
+            event.ProductAction.ProductList
+        );
+
+        if (logRevenue) {
+            sendAmplitudeRevenueSummaryEvent(
+                event,
+                updatedAttributes,
+                isRefund
+            );
+        } else {
+            sendAmplitudeNonRevenueSummaryEvent(event, updatedAttributes);
+        }
+    }
+
+    function sendAmplitudeRevenueSummaryEvent(
+        event,
+        updatedAttributes,
+        isRefund
+    ) {
         var revenueAmount =
             (updatedAttributes['Total Amount'] || 0) * (isRefund ? -1 : 1);
 
@@ -419,13 +430,18 @@ var constructor = function () {
         getInstance().logRevenueV2(revenue);
     }
 
+    function sendAmplitudeNonRevenueSummaryEvent(event, updatedAttributes) {
+        getInstance().logEvent(event.EventName, updatedAttributes);
+    }
+
     function sendProducts(expandedEvents) {
         expandedEvents.forEach(function (expandedEvt) {
-            // Exclude Totals from the attributes as we log it in the revenue call
-            var updatedAttributes = createEcommerceAttributes(
-                expandedEvt.EventAttributes
-            );
+            // `Total` exists on an expanded event if it is part of a revenue/purchase event
+            // but not on other commerce events
             if (expandedEvt.EventName.indexOf('Total') === -1) {
+                var updatedAttributes = createEcommerceAttributes(
+                    expandedEvt.EventAttributes
+                );
                 getInstance().logEvent(
                     expandedEvt.EventName,
                     updatedAttributes
