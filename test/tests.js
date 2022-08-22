@@ -1067,7 +1067,7 @@ describe('Amplitude forwarder', function () {
             };
         });
 
-        describe('eCommerce Events with includeProductsArray set to false', function () {
+        describe('eCommerce Events with isSendIndividualProductEvents set to false', function () {
             beforeEach(function () {
                 mParticle.forwarder.init(
                     {
@@ -1077,22 +1077,27 @@ describe('Amplitude forwarder', function () {
                         includeUtm: 'False',
                         includeReferrer: 'True',
                         instanceName: 'newInstance',
-                        includeProductsArray: 'False',
+                        isSendIndividualProductEvents: 'False',
                     },
                     reportService.cb,
                     true
                 );
             });
 
-            it('should log transaction level add to cart commerce event and item level events per item', function (done) {
-                commerceEvent.EventName = 'eCommerce - AddToCart';
+            it.only('should log transaction level purchase commerce event and item level events per item', function (done) {
+                commerceEvent.EventName = 'eCommerce - Purchase';
                 commerceEvent.EventCategory =
                     CommerceEventType.ProductAddToCart;
                 commerceEvent.ProductAction.ProductActionType =
-                    ProductActionType.AddToCart;
-
+                    ProductActionType.Purchase;
+                debugger;
                 mParticle.forwarder.process(commerceEvent);
                 // events[0] has the summary event
+                amplitude.instances.newInstance.events[0].should.have.property(
+                    'eventName',
+                    'eCommerce - Purchase'
+                );
+
                 amplitude.instances.newInstance.events[0].attrs.should.have.property(
                     'mparticle_amplitude_should_split',
                     false
@@ -1106,81 +1111,26 @@ describe('Amplitude forwarder', function () {
                     JSON.stringify([product1, product2])
                 );
 
-                amplitude.instances.newInstance.events[1].should.have.property(
-                    'eventName',
-                    'eCommerce - add_to_cart - Item'
-                );
-
-                amplitude.instances.newInstance.events[1].attrs.should.deepEqual(
-                    {
-                        Brand: 'brand',
-                        Category: 'category',
-                        'Coupon Code': 'coupon',
-                        Id: 'iphoneSKU',
-                        'Item Price': 999,
-                        Name: 'iphone',
-                        Position: 1,
-                        Quantity: 1,
-                        'Tax Amount': 30,
-                        'Transaction Id': 'foo-transaction-id',
-                        Variant: 'variant',
-                        eventMetric1: 'metric2',
-                        journeyType: 'testjourneytype1',
-                        sale: true,
-                    }
-                );
-
-                amplitude.instances.newInstance.events[2].attrs.should.deepEqual(
-                    {
-                        Brand: 'brand',
-                        Category: 'category',
-                        'Coupon Code': 'coupon',
-                        Id: 'galaxySKU',
-                        'Item Price': 799,
-                        Name: 'galaxy',
-                        Position: 1,
-                        Quantity: 1,
-                        'Tax Amount': 30,
-                        'Transaction Id': 'foo-transaction-id',
-                        Variant: 'variant',
-                        'hit-att2': 'hit-att2-type',
-                        prodMetric1: 'metric1',
-                        sale: true,
-                    }
-                );
-
                 done();
             });
-        });
 
-        describe('eCommerce Events with includeProductsArray set to true', function () {
-            beforeEach(function () {
-                mParticle.forwarder.init(
-                    {
-                        saveEvents: 'True',
-                        savedMaxCount: 20,
-                        uploadBatchSize: 5,
-                        includeUtm: 'False',
-                        includeReferrer: 'True',
-                        instanceName: 'newInstance',
-                        includeProductsArray: 'True',
-                    },
-                    reportService.cb,
-                    true
-                );
-            });
-
-            it('should log transaction level add to cart commerce event and no item level events', function (done) {
+            it('should log transaction level add to cart commerce event and item level events per item', function (done) {
                 commerceEvent.EventName = 'eCommerce - AddToCart';
                 commerceEvent.EventCategory =
                     CommerceEventType.ProductAddToCart;
                 commerceEvent.ProductAction.ProductActionType =
                     ProductActionType.AddToCart;
+
                 mParticle.forwarder.process(commerceEvent);
                 // events[0] has the summary event
+                amplitude.instances.newInstance.events[0].should.have.property(
+                    'eventName',
+                    'eCommerce - AddToCart'
+                );
+
                 amplitude.instances.newInstance.events[0].attrs.should.have.property(
                     'mparticle_amplitude_should_split',
-                    true
+                    false
                 );
                 amplitude.instances.newInstance.events[0].attrs.should.have.property(
                     'sale',
@@ -1191,7 +1141,93 @@ describe('Amplitude forwarder', function () {
                     JSON.stringify([product1, product2])
                 );
 
-                amplitude.instances.newInstance.events.length.should.equal(1);
+                done();
+            });
+        });
+
+        describe('eCommerce Events with isSendIndividualProductEvents set to true', function () {
+            beforeEach(function () {
+                mParticle.forwarder.init(
+                    {
+                        saveEvents: 'True',
+                        savedMaxCount: 20,
+                        uploadBatchSize: 5,
+                        includeUtm: 'False',
+                        includeReferrer: 'True',
+                        instanceName: 'newInstance',
+                        isSendIndividualProductEvents: 'True',
+                    },
+                    reportService.cb,
+                    true
+                );
+            });
+
+            it('should log transaction level add to cart commerce event and include item level events', function (done) {
+                commerceEvent.EventName = 'eCommerce - AddToCart';
+                commerceEvent.EventCategory =
+                    CommerceEventType.ProductAddToCart;
+                commerceEvent.ProductAction.ProductActionType =
+                    ProductActionType.AddToCart;
+                mParticle.forwarder.process(commerceEvent);
+
+                amplitude.instances.newInstance.events.length.should.equal(3);
+
+                // events[0] has the summary event
+                amplitude.instances.newInstance.events[0].should.have.property(
+                    'eventName',
+                    'eCommerce - AddToCart'
+                );
+
+                amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                    'mparticle_amplitude_should_split',
+                    false
+                );
+                amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                    'sale',
+                    true
+                );
+                amplitude.instances.newInstance.events[0].attrs.should.have.property(
+                    'products',
+                    JSON.stringify([product1, product2])
+                );
+                debugger;
+                amplitude.instances.newInstance.events[1].should.have.property('eventName', 'eCommerce - add_to_cart - Item');
+
+                amplitude.instances.newInstance.events[1].attrs.should.deepEqual({
+                    Brand: "brand",
+                    Category: "category",
+                    'Coupon Code': "coupon",
+                    Id: "iphoneSKU",
+                    'Item Price': 999,
+                    Name: "iphone",
+                    Position: 1,
+                    Quantity: 1,
+                    'Tax Amount': 30,
+                    'Transaction Id': "foo-transaction-id",
+                    Variant: "variant",
+                    eventMetric1: "metric2",
+                    journeyType: "testjourneytype1",
+                    sale: true,
+                });
+
+                amplitude.instances.newInstance.events[2].should.have.property('eventName', 'eCommerce - add_to_cart - Item');
+
+                amplitude.instances.newInstance.events[2].attrs.should.deepEqual({
+                    Brand: "brand",
+                    Category: "category",
+                    'Coupon Code': "coupon",
+                    Id: "galaxySKU",
+                    'Item Price': 799,
+                    Name: "galaxy",
+                    Position: 1,
+                    Quantity: 1,
+                    'Tax Amount': 30,
+                    'Transaction Id': "foo-transaction-id",
+                    Variant: "variant",
+                    'hit-att2': "hit-att2-type",
+                    prodMetric1: "metric1",
+                    sale: true,
+                });
 
                 done();
             });
