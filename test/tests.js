@@ -1017,7 +1017,7 @@ describe('Amplitude forwarder', function () {
         done();
     });
 
-    describe.only('ecommerce', function () {
+    describe('ecommerce', function () {
         var product1, product2, commerceEvent;
         beforeEach(function () {
             product1 = {
@@ -1084,37 +1084,39 @@ describe('Amplitude forwarder', function () {
                 );
             });
 
-            it.only('should log transaction level purchase commerce event and item level events per item', function (done) {
+            it('should only log transaction level purchase commerce event', function (done) {
                 commerceEvent.EventName = 'eCommerce - Purchase';
                 commerceEvent.EventCategory =
                     CommerceEventType.ProductAddToCart;
                 commerceEvent.ProductAction.ProductActionType =
                     ProductActionType.Purchase;
-                debugger;
+
                 mParticle.forwarder.process(commerceEvent);
+                amplitude.instances.newInstance.events.length.should.equal(1);
                 // events[0] has the summary event
                 amplitude.instances.newInstance.events[0].should.have.property(
                     'eventName',
                     'eCommerce - Purchase'
                 );
 
-                amplitude.instances.newInstance.events[0].attrs.should.have.property(
-                    'mparticle_amplitude_should_split',
-                    false
-                );
-                amplitude.instances.newInstance.events[0].attrs.should.have.property(
-                    'sale',
-                    true
-                );
-                amplitude.instances.newInstance.events[0].attrs.should.have.property(
-                    'products',
-                    JSON.stringify([product1, product2])
+                amplitude.instances.newInstance.events[0].attrs.should.deepEqual(
+                    {
+                        $price: 430,
+                        $quantity: 2,
+                        $revenue: 430,
+                        'Currency Code': 'USD',
+                        'Tax Amount': 30,
+                        'Transaction Id': 'foo-transaction-id',
+                        mparticle_amplitude_should_split: false,
+                        products: JSON.stringify([product1, product2]),
+                        sale: true,
+                    }
                 );
 
                 done();
             });
 
-            it('should log transaction level add to cart commerce event and item level events per item', function (done) {
+            it('should only log transaction level add to cart commerce event when isSendIndividualProductEvents = false ', function (done) {
                 commerceEvent.EventName = 'eCommerce - AddToCart';
                 commerceEvent.EventCategory =
                     CommerceEventType.ProductAddToCart;
@@ -1190,50 +1192,147 @@ describe('Amplitude forwarder', function () {
                     'products',
                     JSON.stringify([product1, product2])
                 );
-                debugger;
-                amplitude.instances.newInstance.events[1].should.have.property('eventName', 'eCommerce - add_to_cart - Item');
 
-                amplitude.instances.newInstance.events[1].attrs.should.deepEqual({
-                    Brand: "brand",
-                    Category: "category",
-                    'Coupon Code': "coupon",
-                    Id: "iphoneSKU",
-                    'Item Price': 999,
-                    Name: "iphone",
-                    Position: 1,
-                    Quantity: 1,
-                    'Tax Amount': 30,
-                    'Transaction Id': "foo-transaction-id",
-                    Variant: "variant",
-                    eventMetric1: "metric2",
-                    journeyType: "testjourneytype1",
-                    sale: true,
-                });
+                amplitude.instances.newInstance.events[1].should.have.property(
+                    'eventName',
+                    'eCommerce - add_to_cart - Item'
+                );
 
-                amplitude.instances.newInstance.events[2].should.have.property('eventName', 'eCommerce - add_to_cart - Item');
+                amplitude.instances.newInstance.events[1].attrs.should.deepEqual(
+                    {
+                        Brand: 'brand',
+                        Category: 'category',
+                        'Coupon Code': 'coupon',
+                        Id: 'iphoneSKU',
+                        'Item Price': 999,
+                        Name: 'iphone',
+                        Position: 1,
+                        Quantity: 1,
+                        'Transaction Id': 'foo-transaction-id',
+                        Variant: 'variant',
+                        eventMetric1: 'metric2',
+                        journeyType: 'testjourneytype1',
+                        sale: true,
+                    }
+                );
 
-                amplitude.instances.newInstance.events[2].attrs.should.deepEqual({
-                    Brand: "brand",
-                    Category: "category",
-                    'Coupon Code': "coupon",
-                    Id: "galaxySKU",
-                    'Item Price': 799,
-                    Name: "galaxy",
-                    Position: 1,
-                    Quantity: 1,
-                    'Tax Amount': 30,
-                    'Transaction Id': "foo-transaction-id",
-                    Variant: "variant",
-                    'hit-att2': "hit-att2-type",
-                    prodMetric1: "metric1",
-                    sale: true,
-                });
+                amplitude.instances.newInstance.events[2].should.have.property(
+                    'eventName',
+                    'eCommerce - add_to_cart - Item'
+                );
+
+                amplitude.instances.newInstance.events[2].attrs.should.deepEqual(
+                    {
+                        Brand: 'brand',
+                        Category: 'category',
+                        'Coupon Code': 'coupon',
+                        Id: 'galaxySKU',
+                        'Item Price': 799,
+                        Name: 'galaxy',
+                        Position: 1,
+                        Quantity: 1,
+                        'Transaction Id': 'foo-transaction-id',
+                        Variant: 'variant',
+                        'hit-att2': 'hit-att2-type',
+                        prodMetric1: 'metric1',
+                        sale: true,
+                    }
+                );
+
+                done();
+            });
+
+            it.only('should log transaction level purchase commerce event and include revenue and item level events', function (done) {
+                commerceEvent.EventName = 'eCommerce - Purchase';
+                commerceEvent.EventCategory =
+                    CommerceEventType.ProductAddToCart;
+                commerceEvent.ProductAction.ProductActionType =
+                    ProductActionType.Purchase;
+                mParticle.forwarder.process(commerceEvent);
+
+                // a revenue event is not included on the events object, but rather the amplitude.instance.newInstace.revenueObj
+                amplitude.instances.newInstance.events.length.should.equal(3);
+                // events[0] has the summary event
+                amplitude.instances.newInstance.events[0].should.have.property(
+                    'eventName',
+                    'eCommerce - Purchase'
+                );
+
+                amplitude.instances.newInstance.events[0].attrs.should.deepEqual(
+                    {
+                        price: 430,
+                        quantity: 2,
+                        revenue: 430,
+                        'Currency Code': 'USD',
+                        'Tax Amount': 30,
+                        'Transaction Id': 'foo-transaction-id',
+                        mparticle_amplitude_should_split: false,
+                        products: JSON.stringify([product1, product2]),
+                        sale: true,
+                    }
+                );
+
+                amplitude.instances.newInstance.revenueObj.eventAttributes.should.deepEqual(
+                    {
+                        price: 430,
+                        quantity: 2,
+                        revenue: 430,
+                        'Currency Code': 'USD',
+                        'Tax Amount': 30,
+                        'Transaction Id': 'foo-transaction-id',
+                        sale: true,
+                    }
+                );
+
+                amplitude.instances.newInstance.events[1].should.have.property(
+                    'eventName',
+                    'eCommerce - purchase - Item'
+                );
+                amplitude.instances.newInstance.events[1].attrs.should.deepEqual(
+                    {
+                        Brand: 'brand',
+                        Category: 'category',
+                        'Coupon Code': 'coupon',
+                        Id: 'iphoneSKU',
+                        'Item Price': 999,
+                        Name: 'iphone',
+                        Position: 1,
+                        Quantity: 1,
+                        'Transaction Id': 'foo-transaction-id',
+                        Variant: 'variant',
+                        eventMetric1: 'metric2',
+                        journeyType: 'testjourneytype1',
+                        sale: true,
+                    }
+                );
+
+                amplitude.instances.newInstance.events[2].should.have.property(
+                    'eventName',
+                    'eCommerce - purchase - Item'
+                );
+
+                amplitude.instances.newInstance.events[2].attrs.should.deepEqual(
+                    {
+                        Brand: 'brand',
+                        Category: 'category',
+                        'Coupon Code': 'coupon',
+                        Id: 'galaxySKU',
+                        'Item Price': 799,
+                        Name: 'galaxy',
+                        Position: 1,
+                        Quantity: 1,
+                        'Transaction Id': 'foo-transaction-id',
+                        Variant: 'variant',
+                        'hit-att2': 'hit-att2-type',
+                        prodMetric1: 'metric1',
+                        sale: true,
+                    }
+                );
 
                 done();
             });
         });
     });
-    
 
     it('should log refund commerce events', function (done) {
         mParticle.forwarder.process({
