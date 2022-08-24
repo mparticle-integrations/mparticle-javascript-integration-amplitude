@@ -1017,7 +1017,7 @@ describe('Amplitude forwarder', function () {
         done();
     });
 
-    describe.only('ecommerce', function () {
+    describe('ecommerce', function () {
         var product1, product2, commerceEvent;
         beforeEach(function () {
             product1 = {
@@ -1580,66 +1580,6 @@ describe('Amplitude forwarder', function () {
         });
     });
 
-    it('should log RemoveFromCart commerce events', function (done) {
-        mParticle.forwarder.process({
-            EventAttributes: {
-                CustomEventAttribute: 'SomeEventAttributeValue',
-            },
-            EventDataType: MessageType.Commerce,
-            ProductAction: {
-                TransactionId: 123,
-                Affiliation: 'my-affiliation',
-                TotalAmount: 234,
-                TaxAmount: 40,
-                ShippingAmount: 10,
-                CouponCode: 'WinnerChickenDinner',
-                ProductActionType: ProductActionType.RemoveFromCart,
-                ProductList: [
-                    {
-                        Sku: '12345',
-                        Price: 400,
-                        Quantity: 1,
-                        Attributes: { CustomProductAttribute: 'Cool' },
-                    },
-                ],
-            },
-        });
-
-        // No revenue call is expected
-        amplitude.instances.newInstance.should.not.have.property('revenueObj');
-
-        // Product level attributes
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'Id',
-            '12345'
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'Item Price',
-            400
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'Quantity',
-            1
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'Transaction Id',
-            123
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'CustomEventAttribute',
-            'SomeEventAttributeValue'
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.have.property(
-            'CustomProductAttribute',
-            'Cool'
-        );
-        amplitude.instances.newInstance.events[0].attrs.should.not.property(
-            'Total Product Amount'
-        );
-
-        done();
-    });
-
     it('should not log non-compatible commerce events', function (done) {
         mParticle.forwarder.process({
             EventDataType: MessageType.Commerce,
@@ -1667,6 +1607,7 @@ describe('Amplitude forwarder', function () {
                 {
                     sendEventAttributesAsObjects: 'True',
                     instanceName: 'newInstance',
+                    excludeIndividualProductEvents: 'False',
                 },
                 reportService.cb,
                 true
