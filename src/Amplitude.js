@@ -344,9 +344,9 @@ var constructor = function () {
         // if Product Action exists, it's a non-promotion/impression commerce event
         if (event.ProductAction) {
             var isRefund, isPurchase, isMPRevenueEvent;
-            var isSendIndividualProductEvents =
-                forwarderSettings.isSendIndividualProductEvents === 'True';
-            var isSendSeparateAmplitudeRevenueEvent = isSendIndividualProductEvents;
+            var includeIndividualProductEvents =
+                forwarderSettings.excludeIndividualProductEvents === 'False';
+            var isSendSeparateAmplitudeRevenueEvent = includeIndividualProductEvents;
 
             isRefund =
                 event.ProductAction.ProductActionType ===
@@ -362,26 +362,20 @@ var constructor = function () {
                 expandedEvents[0].EventName.indexOf('Total') > -1
             ) {
                 summaryEvent = expandedEvents[0];
-                sendRevenueSummaryEvent(
+                sendMPRevenueSummaryEvent(
                     summaryEvent,
                     event.ProductAction.ProductList,
                     isRefund,
                     isSendSeparateAmplitudeRevenueEvent
                 );
-                // if (isSendSeparateAmplitudeRevenueEvent) {
-                //     sendAmplitudeRevenueEvent(
-                //         summaryEvent,
-                //         isRefund
-                //     );
-                // };
             }
+
             if (!isMPRevenueEvent) {
                 sendSummaryEvent(summaryEvent);
             }
 
             // JUST FINISHED SENDING REVENUE EVENTS, NOW IT'S TIME FOR OTHER EVENTS  I think lines 369 -373 can be moved into the expansion events logic though
-
-            if (isSendIndividualProductEvents) {
+            if (includeIndividualProductEvents) {
                 sendIndividualProductEvents(
                     expandedEvents,
                     isMPRevenueEvent,
@@ -417,14 +411,15 @@ var constructor = function () {
         return false;
     }
 
-    function sendRevenueSummaryEvent(
+    // this function does not use amplitude's logRevenueV2, but rather sends custom event names
+    function sendMPRevenueSummaryEvent(
         summaryEvent,
         products,
         isRefund,
         isSendSeparateAmplitudeRevenueEvent
     ) {
         // send the ecommerce - purchase event
-        var updatedAttributes = createRevenueEcommerceAttributes(
+        var updatedAttributes = createMPRevenueEcommerceAttributes(
             summaryEvent.EventAttributes,
             isSendSeparateAmplitudeRevenueEvent,
             isRefund
@@ -439,7 +434,8 @@ var constructor = function () {
         }
     }
 
-    function createRevenueEcommerceAttributes(
+    // revenue summary event will either have $price/price or $revenue/revenue depending on if
+    function createMPRevenueEcommerceAttributes(
         attributes,
         isSendSeparateAmplitudeRevenueEvent,
         isRefund
@@ -448,17 +444,14 @@ var constructor = function () {
         for (var key in attributes) {
             if (key === 'Total Amount') {
                 var revenueAmount = attributes[key] * (isRefund ? -1 : 1);
-                isSendSeparateAmplitudeRevenueEvent
-                    ? (updatedAttributes['price'] = revenueAmount)
-                    : (updatedAttributes['$price'] = revenueAmount);
-                isSendSeparateAmplitudeRevenueEvent
-                    ? (updatedAttributes['revenue'] = revenueAmount)
-                    : (updatedAttributes['$revenue'] = revenueAmount);
-            } else if (key === 'Product Count') {
-                isSendSeparateAmplitudeRevenueEvent
-                    ? (updatedAttributes['quantity'] = attributes[key])
-                    : (updatedAttributes['$quantity'] = attributes[key]);
-                updatedAttributes[key];
+                if (isSendSeparateAmplitudeRevenueEvent) {
+                    // TODO: Amplitude should confirm if both price and revenue are necessary, or just one of them
+                    updatedAttributes['price'] = revenueAmount;
+                    updatedAttributes['revenue'] = revenueAmount;
+                } else {
+                    updatedAttributes['$price'] = revenueAmount;
+                    updatedAttributes['$revenue'] = revenueAmount;
+                }
             } else if (key !== 'Total Amount') {
                 updatedAttributes[key] = attributes[key];
             }
@@ -467,13 +460,15 @@ var constructor = function () {
         return convertJsonAttrs(updatedAttributes);
     }
 
-    function sendAmplitudeRevenueEvent(summaryEvent, isRefund) {
-        var revenueAmount =
-            (updatedAttributes['Total Amount'] || 0) * (isRefund ? -1 : 1);
-        var revenue = new window.amplitude.Revenue()
-            .setPrice(revenueAmount)
-            .setEventProperties(updatedAttributes);
-        getInstance().logRevenueV2(revenue);
+    function createAttrsForAmplitudeRevenueEvent(attributes) {
+        var updatedAttributes = {};
+        for (var key in attributes) {
+            if (key !== 'Total Amount') {
+                updatedAttributes[key] = attributes[key];
+            }
+        }
+
+        return convertJsonAttrs(updatedAttributes);
     }
 
     function sendSummaryEvent(summaryEvent) {
@@ -492,15 +487,6 @@ var constructor = function () {
         getInstance().logEvent(summaryEvent.EventName, updatedAttributes);
     }
 
-    // function sendAmplitudeRevenueSummaryEvent(
-    //     event,
-    //     updatedAttributes,
-    //     isRefund
-    // ) {
-    //     var revenueAmount =
-    //         (updatedAttributes['Total Amount'] || 0) * (isRefund ? -1 : 1);
-    // }
-
     function sendIndividualProductEvents(
         expandedEvents,
         isMPRevenueEvent,
@@ -508,11 +494,7 @@ var constructor = function () {
         isRefund
     ) {
         expandedEvents.forEach(function (expandedEvt) {
-            var updatedAttributes = createRevenueEcommerceAttributes(
-                expandedEvt.EventAttributes,
-                isSendSeparateAmplitudeRevenueEvent,
-                isRefund
-            );
+            var updatedAttributes;
             // `Total` exists on an expanded event if it is part of a revenue/purchase event
             // but not on other commerce events. This only needs to be fired if isSendSeparateAmplitudeRevenueEvent === True
             if (
@@ -523,13 +505,16 @@ var constructor = function () {
                 var revenueAmount =
                     (expandedEvt.EventAttributes['Total Amount'] || 0) *
                     (isRefund ? -1 : 1);
+                updatedAttributes = createAttrsForAmplitudeRevenueEvent(
+                    expandedEvt.EventAttributes
+                );
 
                 var revenue = new window.amplitude.Revenue()
                     .setPrice(revenueAmount)
                     .setEventProperties(updatedAttributes);
                 getInstance().logRevenueV2(revenue);
             } else if (expandedEvt.EventName.indexOf('Total') === -1) {
-                var updatedAttributes = createEcommerceAttributes(
+                updatedAttributes = createEcommerceAttributes(
                     expandedEvt.EventAttributes
                 );
                 getInstance().logEvent(
