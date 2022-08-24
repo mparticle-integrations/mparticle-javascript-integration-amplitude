@@ -346,6 +346,8 @@ var constructor = function () {
             var isRefund, isPurchase, isMPRevenueEvent;
             var includeIndividualProductEvents =
                 forwarderSettings.excludeIndividualProductEvents === 'False';
+            // Only sent separate amplitude revenue events when we includeIndividualProductEvents,
+            // so create this variable for clarity
             var isSendSeparateAmplitudeRevenueEvent = includeIndividualProductEvents;
 
             isRefund =
@@ -374,7 +376,6 @@ var constructor = function () {
                 sendSummaryEvent(summaryEvent);
             }
 
-            // JUST FINISHED SENDING REVENUE EVENTS, NOW IT'S TIME FOR OTHER EVENTS  I think lines 369 -373 can be moved into the expansion events logic though
             if (includeIndividualProductEvents) {
                 sendIndividualProductEvents(
                     expandedEvents,
