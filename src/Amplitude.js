@@ -349,8 +349,7 @@ var constructor = function () {
         var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
         // if Product Action exists, it's a regular product action commerce event
         if (event.ProductAction) {
-            var wasProcessed = processProductAction(event, expandedEvents);
-            return wasProcessed;
+            return processProductAction(event, expandedEvents);
         }
 
         // if it is not a product action, it is an impression or promotion commerce event
@@ -371,7 +370,7 @@ var constructor = function () {
         }
 
         console.warn(
-            'Commerce event does not conform to our expectations and was not forwarded to Amplitude. Please double check your code.'
+            'Commerce event does not conform to our expectations and was not forwarded to Amplitude. Please double-check your code.'
         );
 
         return false;
@@ -662,7 +661,7 @@ var constructor = function () {
     this.setUserAttribute = setUserAttribute;
     this.setOptOut = setOptOut;
     this.removeUserAttribute = removeUserAttribute;
-};;
+};
 
 function getId() {
     return moduleId;
