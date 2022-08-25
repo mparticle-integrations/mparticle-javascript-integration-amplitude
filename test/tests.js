@@ -1017,7 +1017,7 @@ describe('Amplitude forwarder', function () {
         done();
     });
 
-    describe('ecommerce', function () {
+    describe('eCommerce Events', function () {
         var product1, product2, commerceEvent;
         beforeEach(function () {
             product1 = {

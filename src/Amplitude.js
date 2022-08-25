@@ -49,7 +49,8 @@ var MP_AMP_SPLIT = 'mparticle_amplitude_should_split',
     TOTAL = 'Total',
     PRODUCTS = 'products',
     REFUND = 'Refund',
-    PURCHASE = 'Purchase';
+    PURCHASE = 'Purchase',
+    TOTAL_PRODUCT_AMOUNT = 'Total Product Amount';
 
 var includeIndividualProductEvents, shouldSendSeparateAmplitudeRevenueEvent;
 
@@ -337,7 +338,7 @@ var constructor = function () {
     function createEcommerceAttributes(attributes) {
         var updatedAttributes = {};
         for (var key in attributes) {
-            if (key !== TOTAL_AMOUNT && key !== 'Total Product Amount') {
+            if (key !== TOTAL_AMOUNT && key !== TOTAL_PRODUCT_AMOUNT) {
                 updatedAttributes[key] = attributes[key];
             }
         }
@@ -376,6 +377,26 @@ var constructor = function () {
         return false;
     }
 
+    /*
+    When we process a product action event, Amplitude has a very specific way of
+    sending events to them:
+
+    1.  Send a summary event with event attributes from the MP event.
+        a.  Add a key of `products` with a value of JSON.stringify(productArray).
+        b.  Add a key of mparticle_amplitude_should_split with a value of `false`.
+
+    2.  Determine if we send product level events or not.
+        a.  If includeIndividualProductEvents === true, send product level events
+        b.  If includeIndividualProductEvents === false, do not send product level events
+
+    3.  Determine if we send an Amplitude revenue event or not.
+        a.  If shouldSendSeparateAmplitudeRevenueEvent === true, send an Amplitude revenue event.
+        b.  If shouldSendSeparateAmplitudeRevenueEvent === true, the summary event attribute should be `revenue`.
+        c.  If shouldSendSeparateAmplitudeRevenueEvent === false, the summary event attribute should be `$revenue`
+
+    See test/AmplitudeCommerceEvent.MD for examples of what the expectations of the payload are.
+
+     */
     function processProductAction(unexpandedCommerceEvent, expandedEvents) {
         var summaryEvent, isRefund, isPurchase, isMPRevenueEvent;
 
