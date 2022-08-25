@@ -1100,7 +1100,6 @@ describe('Amplitude forwarder', function () {
 
                 amplitude.instances.newInstance.events[0].attrs.should.deepEqual(
                     {
-                        $price: 430,
                         $revenue: 430,
                         'Product Count': 2,
                         'Currency Code': 'USD',
@@ -1131,7 +1130,6 @@ describe('Amplitude forwarder', function () {
 
                 amplitude.instances.newInstance.events[0].attrs.should.deepEqual(
                     {
-                        $price: -430,
                         $revenue: -430,
                         'Product Count': 2,
                         'Currency Code': 'USD',
@@ -1241,7 +1239,6 @@ describe('Amplitude forwarder', function () {
 
                 amplitude.instances.newInstance.events[0].attrs.should.deepEqual(
                     {
-                        price: 430,
                         'Product Count': 2,
                         revenue: 430,
                         'Currency Code': 'USD',
@@ -1333,7 +1330,6 @@ describe('Amplitude forwarder', function () {
 
                 amplitude.instances.newInstance.events[0].attrs.should.deepEqual(
                     {
-                        price: -430,
                         'Product Count': 2,
                         revenue: -430,
                         'Currency Code': 'USD',
