@@ -341,14 +341,15 @@ var constructor = function () {
     function logCommerce(event) {
         var summaryEvent = event;
         var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
-        // if Product Action exists, it's a non-promotion/impression commerce event
+        // if Product Action exists, it's a non-promotion/impression
+        // commerce event
         if (event.ProductAction) {
             var isRefund, isPurchase, isMPRevenueEvent;
             var includeIndividualProductEvents =
                 forwarderSettings.excludeIndividualProductEvents === 'False';
-            // Only sent separate amplitude revenue events when we includeIndividualProductEvents,
+            // Only send separate amplitude revenue events when we includeIndividualProductEvents,
             // so create this variable for clarity
-            var isSendSeparateAmplitudeRevenueEvent = includeIndividualProductEvents;
+            var shouldSendSeparateAmplitudeRevenueEvent = includeIndividualProductEvents;
 
             isRefund =
                 event.ProductAction.ProductActionType ===
@@ -428,11 +429,8 @@ var constructor = function () {
         updatedAttributes[MP_AMP_SPLIT] = false;
 
         updatedAttributes['products'] = JSON.stringify(products);
-        if (isRefund) {
-            getInstance().logEvent('eCommerce - Refund', updatedAttributes);
-        } else {
-            getInstance().logEvent('eCommerce - Purchase', updatedAttributes);
-        }
+        var revenueEventLabel = isRefund ? 'Refund' : 'Purchase';
+        getInstance().logEvent('eCommerce - ' + revenueEventLabel, updatedAttributes);
     }
 
     // revenue summary event will either have $price/price or $revenue/revenue depending on if
@@ -444,6 +442,7 @@ var constructor = function () {
         var updatedAttributes = {};
         for (var key in attributes) {
             if (key === 'Total Amount') {
+                // A purchase is a positive amount and a refund is negative
                 var revenueAmount = attributes[key] * (isRefund ? -1 : 1);
                 if (isSendSeparateAmplitudeRevenueEvent) {
                     // TODO: Amplitude should confirm if both price and revenue are necessary, or just one of them
@@ -482,7 +481,7 @@ var constructor = function () {
                 summaryEvent.ProductAction.ProductList
             );
         } catch (e) {
-            console.log('error adding Product List to summary event');
+            console.error('error adding Product List to summary event');
         }
 
         getInstance().logEvent(summaryEvent.EventName, updatedAttributes);
@@ -500,10 +499,12 @@ var constructor = function () {
             // but not on other commerce events. This only needs to be fired if isSendSeparateAmplitudeRevenueEvent === True
             if (
                 isMPRevenueEvent &&
+                // A purchase is a positive amount and a refund is negative
                 (expandedEvt.EventName.indexOf('Total') > -1) &
                     isSendSeparateAmplitudeRevenueEvent
             ) {
                 var revenueAmount =
+                    // A purchase is a positive amount and a refund is negative
                     (expandedEvt.EventAttributes['Total Amount'] || 0) *
                     (isRefund ? -1 : 1);
                 updatedAttributes = createAttrsForAmplitudeRevenueEvent(
