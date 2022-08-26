@@ -1,6 +1,10 @@
 ## Releases
 
 --
+#### 2.2.1 - 2022-08-26
+
+-   feat: Send summary events with eCommerce events, add excludeIndividualProductEvents flag
+
 #### 2.2.0 - 2021-11-03
 
 -   feat: Support other5-other10 IDs
