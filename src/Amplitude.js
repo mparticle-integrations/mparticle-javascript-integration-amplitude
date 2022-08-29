@@ -463,7 +463,7 @@ var constructor = function () {
         );
         updatedAttributes[MP_AMP_SPLIT] = false;
 
-        updatedAttributes[PRODUCTS] = JSON.stringify(products);
+        updatedAttributes[PRODUCTS] = products;
         var revenueEventLabel = isRefund ? REFUND : PURCHASE;
         getInstance().logEvent(
             'eCommerce - ' + revenueEventLabel,
@@ -516,9 +516,8 @@ var constructor = function () {
         );
         updatedAttributes[MP_AMP_SPLIT] = false;
         try {
-            updatedAttributes[PRODUCTS] = JSON.stringify(
-                summaryEvent.ProductAction.ProductList
-            );
+            updatedAttributes[PRODUCTS] =
+                summaryEvent.ProductAction.ProductList;
         } catch (e) {
             console.error('error adding Product List to summary event');
         }

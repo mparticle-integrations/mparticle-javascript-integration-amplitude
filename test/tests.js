@@ -1106,7 +1106,7 @@ describe('Amplitude forwarder', function () {
                         'Tax Amount': 30,
                         'Transaction Id': 'foo-transaction-id',
                         mparticle_amplitude_should_split: false,
-                        products: JSON.stringify([product1, product2]),
+                        products: [product1, product2],
                         sale: true,
                     }
                 );
@@ -1136,7 +1136,7 @@ describe('Amplitude forwarder', function () {
                         'Tax Amount': 30,
                         'Transaction Id': 'foo-transaction-id',
                         mparticle_amplitude_should_split: false,
-                        products: JSON.stringify([product1, product2]),
+                        products: [product1, product2],
                         sale: true,
                     }
                 );
@@ -1168,7 +1168,7 @@ describe('Amplitude forwarder', function () {
                 );
                 amplitude.instances.newInstance.events[0].attrs.should.have.property(
                     'products',
-                    JSON.stringify([product1, product2])
+                    [product1, product2]
                 );
 
                 done();
@@ -1198,7 +1198,7 @@ describe('Amplitude forwarder', function () {
                 );
                 amplitude.instances.newInstance.events[0].attrs.should.have.property(
                     'products',
-                    JSON.stringify([product1, product2])
+                    [product1, product2]
                 );
 
                 done();
@@ -1245,7 +1245,7 @@ describe('Amplitude forwarder', function () {
                         'Tax Amount': 30,
                         'Transaction Id': 'foo-transaction-id',
                         mparticle_amplitude_should_split: false,
-                        products: JSON.stringify([product1, product2]),
+                        products: [product1, product2],
                         sale: true,
                     }
                 );
@@ -1336,7 +1336,7 @@ describe('Amplitude forwarder', function () {
                         'Tax Amount': 30,
                         'Transaction Id': 'foo-transaction-id',
                         mparticle_amplitude_should_split: false,
-                        products: JSON.stringify([product1, product2]),
+                        products: [product1, product2],
                         sale: true,
                     }
                 );
@@ -1435,7 +1435,7 @@ describe('Amplitude forwarder', function () {
                 );
                 amplitude.instances.newInstance.events[0].attrs.should.have.property(
                     'products',
-                    JSON.stringify([product1, product2])
+                    [product1, product2]
                 );
 
                 amplitude.instances.newInstance.events[1].should.have.property(
@@ -1520,7 +1520,7 @@ describe('Amplitude forwarder', function () {
                 );
                 amplitude.instances.newInstance.events[0].attrs.should.have.property(
                     'products',
-                    JSON.stringify([product1, product2])
+                    [product1, product2]
                 );
 
                 amplitude.instances.newInstance.events[1].should.have.property(
