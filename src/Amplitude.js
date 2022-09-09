@@ -52,7 +52,9 @@ var MP_AMP_SPLIT = 'mparticle_amplitude_should_split',
     PURCHASE = 'Purchase',
     TOTAL_PRODUCT_AMOUNT = 'Total Product Amount';
 
-var includeIndividualProductEvents, shouldSendSeparateAmplitudeRevenueEvent;
+var includeIndividualProductEvents,
+    shouldSendSeparateAmplitudeRevenueEvent,
+    enableTempAmplitudeEcommerce;
 
 /* eslint-disable */
 // prettier-ignore
@@ -350,7 +352,44 @@ var constructor = function () {
         var expandedEvents = mParticle.eCommerce.expandCommerceEvent(event);
         // if Product Action exists, it's a regular product action commerce event
         if (event.ProductAction) {
-            return processProductAction(event, expandedEvents);
+            if (enableTempAmplitudeEcommerce) {
+                return processTemporaryProductAction(event, expandedEvents);
+            } else {
+                // TODO: Remove this old code path when Amplitude is ready
+                var isRefund, isPurchase, logRevenue;
+                isRefund =
+                    event.ProductAction.ProductActionType ===
+                    mParticle.ProductActionType.Refund;
+                isPurchase =
+                    event.ProductAction.ProductActionType ===
+                    mParticle.ProductActionType.Purchase;
+                logRevenue = isRefund || isPurchase;
+                expandedEvents.forEach(function (expandedEvt) {
+                    // Exclude Totals from the attributes as we log it in the revenue call
+                    var updatedAttributes = createEcommerceAttributes(
+                        expandedEvt.EventAttributes
+                    );
+
+                    // Purchase and Refund events generate an additional 'Total' event
+                    if (
+                        logRevenue &&
+                        expandedEvt.EventName.indexOf('Total') > -1
+                    ) {
+                        var revenueAmount =
+                            (expandedEvt.EventAttributes['Total Amount'] || 0) *
+                            (isRefund ? -1 : 1);
+                        var revenue = new window.amplitude.Revenue()
+                            .setPrice(revenueAmount)
+                            .setEventProperties(updatedAttributes);
+                        getInstance().logRevenueV2(revenue);
+                    } else {
+                        getInstance().logEvent(
+                            expandedEvt.EventName,
+                            updatedAttributes
+                        );
+                    }
+                });
+            }
         }
 
         // if it is not a product action, it is an impression or promotion commerce event
@@ -397,7 +436,10 @@ var constructor = function () {
     See test/AmplitudeCommerceEvent.MD for examples of what the expectations of the payload are.
 
      */
-    function processProductAction(unexpandedCommerceEvent, expandedEvents) {
+    function processTemporaryProductAction(
+        unexpandedCommerceEvent,
+        expandedEvents
+    ) {
         var summaryEvent, isRefund, isPurchase, isMPRevenueEvent;
 
         isRefund =
@@ -596,6 +638,9 @@ var constructor = function () {
         // Only send separate amplitude revenue events when we includeIndividualProductEvents,
         // so create this variable for clarity
         shouldSendSeparateAmplitudeRevenueEvent = includeIndividualProductEvents;
+
+        enableTempAmplitudeEcommerce =
+            forwarderSettings.enableTempAmplitudeEcommerce === 'True';
         try {
             if (!window.amplitude) {
                 if (testMode !== true) {
