@@ -1,6 +1,9 @@
 ## Releases
 
 --
+#### 2.2.1 - 2022-09-12
+
+-   feat: Add feature flag for sending ecommerce summary events
 #### 2.2.0 - 2021-11-03
 
 -   feat: Support other5-other10 IDs
