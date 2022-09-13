@@ -389,6 +389,8 @@ var constructor = function () {
                         );
                     }
                 });
+
+                return true;
             }
         }
 
