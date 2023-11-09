@@ -6,19 +6,28 @@ name: Pull Requests
 on: pull_request
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build-and-test:
+        name: Build and Test
+        runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x]
+        strategy:
+            matrix:
+                node-version: [18.x, 20.x]
 
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Run NPM CI
+              run: npm ci
+
+            - name: Build Files
+              run: npm run build
+
+            - name: Run Core Tests
+              run: npm test

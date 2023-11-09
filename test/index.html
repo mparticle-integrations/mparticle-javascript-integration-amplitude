@@ -10,7 +10,7 @@
     <script src="../node_modules/@mparticle/web-sdk/dist/mparticle.js"></script>
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../node_modules/should/should.js"></script>
-    <script src="mockhttprequest.js"></script>
+    <script src="lib/mockhttprequest.js"></script>
     <script>
         window.mParticle.addForwarder = function (forwarder) {
                 window.mParticle.forwarder = new forwarder.constructor();
@@ -125,7 +125,7 @@
     </script>
     <script src="../dist/Amplitude.iife.js" data-cover></script>
     <script>mocha.setup('bdd')</script>
-    <script src="tests.js"></script>
+    <script src="test-bundle.js"></script>
     <script>
         mocha.run();
     </script>
