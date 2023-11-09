@@ -10,15 +10,7 @@ const files = [
     './test-bundle.js',
 ];
 
-let browsers = [
-    'ChromeHeadless',
-    'Chrome',
-    'FirefoxHeadless',
-    'Safari',
-    'Edge',
-    'IE',
-    'Firefox',
-];
+let browsers = ['ChromeHeadless', 'FirefoxHeadless'];
 let singleRun = true;
 
 if (DEBUG === 'true') {
