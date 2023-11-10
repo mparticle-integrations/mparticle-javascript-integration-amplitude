@@ -1,3 +1,4 @@
 node_modules/
 amplitude_source.js
+dist/
 test/test-bundle.js 
