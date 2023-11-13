@@ -14,8 +14,6 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-var isobject = require('isobject');
-
 var name = 'Amplitude',
     moduleId = 53,
     MessageType = {
@@ -738,6 +736,14 @@ function getId() {
     return moduleId;
 }
 
+function isObject(val) {
+    return (
+        val != null &&
+        typeof val === 'object' &&
+        Array.isArray(val) === false
+    );
+}
+
 function register(config) {
     if (!config) {
         console.log(
@@ -746,14 +752,14 @@ function register(config) {
         return;
     }
 
-    if (!isobject(config)) {
+    if (!isObject(config)) {
         console.log(
             'The "config" must be an object. You passed in a ' + typeof config
         );
         return;
     }
 
-    if (isobject(config.kits)) {
+    if (isObject(config.kits)) {
         config.kits[name] = {
             constructor: constructor,
         };
