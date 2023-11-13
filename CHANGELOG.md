@@ -1,3 +1,15 @@
+# [2.3.0](https://github.com/mparticle-integrations/mparticle-javascript-integration-amplitude/compare/v2.2.1...v2.3.0) (2023-11-13)
+
+
+### Bug Fixes
+
+* Remove isObject dependency ([#63](https://github.com/mparticle-integrations/mparticle-javascript-integration-amplitude/issues/63)) ([b25b619](https://github.com/mparticle-integrations/mparticle-javascript-integration-amplitude/commit/b25b619f6af232427db68d0dc0173e3ddc396975))
+
+
+### Features
+
+* Add support for Amplitude JS v8.21.8 ([#62](https://github.com/mparticle-integrations/mparticle-javascript-integration-amplitude/issues/62)) ([4385a76](https://github.com/mparticle-integrations/mparticle-javascript-integration-amplitude/commit/4385a761ff2c43477ac4038ff1a8588659f36329))
+
 ## Releases
 
 --
